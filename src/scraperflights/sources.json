@@ -1,0 +1,329 @@
+[
+  {
+    "id": "amadeus",
+    "name": "Amadeus",
+    "category": "distribution",
+    "url": "https://developers.amadeus.com",
+    "methods": [
+      "api"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "api"
+    ],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "credentials_required",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "skyscanner",
+    "name": "Skyscanner",
+    "category": "metasearch",
+    "url": "https://www.skyscanner.es",
+    "methods": [
+      "api",
+      "web",
+      "browser"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "api"
+    ],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "credentials_required",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "iberia",
+    "name": "Iberia",
+    "category": "airline",
+    "url": "https://www.iberia.com",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 1,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "vueling",
+    "name": "Vueling",
+    "category": "airline",
+    "url": "https://www.vueling.com",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 1,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "air_europa",
+    "name": "Air Europa",
+    "category": "airline",
+    "url": "https://www.aireuropa.com",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "google_flights",
+    "name": "Google Flights",
+    "category": "metasearch",
+    "url": "https://www.google.com/travel/flights",
+    "methods": [
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "kayak",
+    "name": "KAYAK",
+    "category": "metasearch",
+    "url": "https://www.kayak.es",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "momondo",
+    "name": "momondo",
+    "category": "metasearch",
+    "url": "https://www.momondo.es",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "expedia",
+    "name": "Expedia",
+    "category": "agency",
+    "url": "https://www.expedia.es",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "booking",
+    "name": "Booking.com Flights",
+    "category": "agency",
+    "url": "https://www.booking.com/flights",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "trip_com",
+    "name": "Trip.com",
+    "category": "agency",
+    "url": "https://es.trip.com/flights/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "lastminute",
+    "name": "lastminute.com",
+    "category": "agency",
+    "url": "https://www.lastminute.com",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "edreams",
+    "name": "eDreams",
+    "category": "agency",
+    "url": "https://www.edreams.es",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "opodo",
+    "name": "Opodo",
+    "category": "agency",
+    "url": "https://www.opodo.es",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "rumbo",
+    "name": "Rumbo",
+    "category": "agency",
+    "url": "https://www.rumbo.es",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "atrapalo",
+    "name": "Atrápalo",
+    "category": "agency",
+    "url": "https://www.atrapalo.com/vuelos/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 1,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-05",
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "logitravel",
+    "name": "Logitravel",
+    "category": "agency",
+    "url": "https://www.logitravel.com/vuelos/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 1,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-05",
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "viajes_eci",
+    "name": "Viajes El Corte Inglés",
+    "category": "agency",
+    "url": "https://www.viajeselcorteingles.es/vuelos/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-05",
+    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  }
+]

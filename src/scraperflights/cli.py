@@ -8,6 +8,7 @@ from uuid import uuid4
 from .core import Search, Store, now, rank, money
 from .http import Client, ProviderError
 from .providers import Amadeus, Skyscanner
+from .catalog import sources
 
 
 def run_search(search, provider_names, sellers, budget=40, top=5):
@@ -83,6 +84,10 @@ def export(run, directory):
 def main(argv=None):
     p = argparse.ArgumentParser(description='MAD ↔ BCN: live API flight observations, repricing and history')
     sub = p.add_subparsers(dest='command', required=True)
+    catalog = sub.add_parser('sources', help='List candidate sources; does not execute searches')
+    catalog.add_argument('--category', choices=['airline', 'agency', 'metasearch', 'distribution'])
+    catalog.add_argument('--method', choices=['api', 'web', 'browser', 'feeds'])
+    catalog.add_argument('--status', choices=['implemented', 'candidate'])
     check = sub.add_parser('doctor', help='Show credential availability without exposing values')
     history = sub.add_parser('history')
     history.add_argument('--db', default='data/flights.sqlite')
@@ -104,6 +109,9 @@ def main(argv=None):
     q.add_argument('--db', default='data/flights.sqlite')
     q.add_argument('--output', default='output')
     args = p.parse_args(argv)
+    if args.command == 'sources':
+        print(json.dumps(sources(args.category, args.method, args.status), ensure_ascii=False, indent=2))
+        return 0
     if args.command == 'doctor':
         print(json.dumps({c.name: 'configured' if c(Client()).ready() else 'credentials_missing'
                           for c in (Amadeus, Skyscanner)}, indent=2))

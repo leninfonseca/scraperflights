@@ -5,6 +5,21 @@ Diseño de un comparador de vuelos Madrid–Barcelona y Barcelona–Madrid, con 
 **Estado: CLI implementada con adaptadores API Amadeus y Skyscanner; requiere credenciales propias. Probada con respuestas simuladas; sin validación live autenticada en este entorno.** Las fuentes citadas son candidatas salvo indicación expresa. No se garantiza el mínimo de todo el mercado: se identifica la mejor oferta comparable observada entre las fuentes que respondieron, para una búsqueda y una ventana temporal concretas.
 
 
+## Organización híbrida: ampliación pequeña
+
+Secciones creadas: **API**, **web HTTP**, **navegador** y **feeds/archivos**, con contrato común. Los dos adaptadores existentes están en `connectors/api/`; las otras secciones están preparadas y todavía no extraen precios.
+
+Catálogo de **18 fuentes** separado del registro de reputación. Añadidas **Atrápalo, Logitravel y Viajes El Corte Inglés** como candidatas. Los métodos propuestos no implican conectores operativos ni buena valoración confirmada.
+
+```bash
+scraperflights sources
+scraperflights sources --category agency
+scraperflights sources --method web --status candidate
+scraperflights sources --status implemented
+```
+
+Este comando consulta el catálogo local y no realiza peticiones ni consume cuota API. Detalles y siguientes pasos: [docs/sources.md](docs/sources.md).
+
 ## Uso del programa implementado
 
 Requiere Python 3.11 o posterior. No tiene dependencias de ejecución externas.
