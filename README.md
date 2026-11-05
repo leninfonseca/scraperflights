@@ -2,7 +2,89 @@
 
 Diseño de un comparador de vuelos Madrid–Barcelona y Barcelona–Madrid, con histórico de observaciones y revalidación de ofertas.
 
-**Estado: especificación inicial; todavía no hay scraper operativo, conexiones activas ni precios reales.** Las fuentes citadas son candidatas salvo indicación expresa. No se garantiza el mínimo de todo el mercado: se identifica la mejor oferta comparable observada entre las fuentes que respondieron, para una búsqueda y una ventana temporal concretas.
+**Estado: CLI implementada con adaptadores API Amadeus y Skyscanner; requiere credenciales propias. Probada con respuestas simuladas; sin validación live autenticada en este entorno.** Las fuentes citadas son candidatas salvo indicación expresa. No se garantiza el mínimo de todo el mercado: se identifica la mejor oferta comparable observada entre las fuentes que respondieron, para una búsqueda y una ventana temporal concretas.
+
+
+## Uso del programa implementado
+
+Requiere Python 3.11 o posterior. No tiene dependencias de ejecución externas.
+
+```bash
+python -m pip install -e .
+python -m unittest discover -s tests -v
+scraperflights doctor
+```
+
+Configura credenciales como variables de entorno (no las subas al repositorio). `.env.example` contiene sus nombres; el programa **no carga .env automáticamente**.
+
+- Amadeus: `AMADEUS_CLIENT_ID` y `AMADEUS_CLIENT_SECRET`; `AMADEUS_ENV=production` para inventario real o `test` para sandbox. El acceso a producción debe estar autorizado por el proveedor. Cobertura limitada por su producto; no asumir todas las low cost.
+- Skyscanner: `SKYSCANNER_API_KEY`, con acceso aprobado a Travel API. Busca compañías y vendedores disponibles en su inventario, no una lista fija de agencias.
+- `doctor` solo informa presencia de variables; no valida permisos, saldo ni credenciales.
+
+```bash
+# Sustituye las fechas por fechas futuras.
+scraperflights search --origin MAD --date 2026-12-10 --both-directions
+scraperflights search --origin BCN --date 2026-12-10 --return-date 2026-12-15 --adults 2
+scraperflights search --origin BCN --date 2026-12-10 --flex-days 2 --checked-bags 1 --budget 30 --top 5
+scraperflights history --limit 10
+```
+
+`--both-directions` ejecuta dos búsquedas independientes; no crea un billete de ida/vuelta. `--flex-days` desplaza la ida y mantiene fija la vuelta. Valida todas las fechas antes de consultar. Hasta 30 búsquedas por invocación (±7 días y ambos sentidos); `--budget` aplica a **cada búsqueda**, contando autenticación, polling, revalidación y reintentos. Cada petición tiene timeout de 20 s y hasta 3 intentos transitorios; no existe un plazo global de ejecución. Las fuentes se ejecutan secuencialmente.
+
+Se guardan histórico SQLite en `data/flights.sqlite` y reportes JSON/CSV en `output/`. Estas carpetas están excluidas de git. Los reportes contienen enlaces del vendedor que pueden caducar: trátalos como privados. No se persisten las claves ni las respuestas completas con tokens. CSV protege campos que podrían interpretarse como fórmulas.
+
+### Qué hace realmente esta versión
+
+| Función | Estado |
+|---|---|
+| MAD ↔ BCN, adultos, turista, EUR, directos/escalas | Implementado |
+| Ida/vuelta, fechas flexibles y ambos sentidos independientes | Implementado |
+| Consulta Amadeus Search y Price | Implementado; credenciales necesarias; pendiente smoke test live |
+| Skyscanner create/poll y refresh create/poll | Implementado; acceso partner necesario; pendiente smoke test live |
+| Vendedores de Skyscanner | Se extraen dinámicamente con precio y enlace cuando existen |
+| Revalidación de finalistas y variaciones | Implementado; fallos y búsquedas parciales explícitos |
+| Precio mínimo observado | `lowest_observed`, provisional, sin garantía de coste final |
+| Total final y ganador verificable | Solo elegible si hay total completo, reputación aprobada y verificación reciente; los adaptadores actuales no certifican gastos finales de checkout |
+| Equipaje requerido | Se captura lo informado; si se solicita equipaje, el coste necesario no confirmado bloquea el ranking final |
+| Reputación | Registro manual con evidencia y caducidad de 90 días; sin puntuaciones inventadas |
+| Histórico/exportación, límites y aislamiento de fallos | Implementado |
+| Scraping directo de webs de aerolíneas/agencias | Pendiente; no hay parsers web activos ni evasión de bloqueos |
+| Niños/bebés, descuentos, otras cabinas/monedas, filtros horarios | Variables documentadas; aún no expuestas en CLI |
+| Comparar automáticamente ida/vuelta conjunta con dos billetes | Pendiente; hoy son búsquedas explícitas separadas |
+| Alertas/ejecución periódica | No configuradas; CI ejecuta pruebas, no búsquedas de pago |
+
+**No se inventa un ganador final.** Un precio API revalidado sigue sin demostrar los gastos aplicables al pago en la agencia. Las ofertas se muestran en `pending` con motivos y en `lowest_observed`; `winner` permanece null si falta evidencia. Esto es deliberado y evita prometer un ahorro con costes desconocidos. El primer paso de activación real es configurar al menos una credencial y ejecutar una búsqueda futura.
+
+### Registro de vendedores
+
+`config/sellers.json` comienza vacío porque aún no se han verificado reseñas actuales. Usa el nombre exacto del vendedor devuelto por la API. Una aprobación requiere revisión humana y evidencia; no permite omitir otros bloqueos del precio.
+
+```json
+{
+  "Nombre exacto del vendedor": {
+    "status": "approved",
+    "reviewed_at": "2026-11-05",
+    "evidence_url": "https://plataforma-de-resenas.example/ficha-verificada",
+    "rating": 4.2,
+    "review_count": 1500,
+    "notes": "Ejemplo de estructura: sustituir por evidencia real, no copiar como aprobación"
+  }
+}
+```
+
+No se incluye ninguna aprobación de ejemplo en el fichero real. Las reseñas no se scrapean automáticamente. La política numérica del diseño es una guía de revisión humana; la ejecución comprueba estado, fecha y presencia de evidencia.
+
+### Estados y códigos de salida
+
+- `complete`: el proveedor terminó la consulta; no significa todo el mercado ni precio de checkout.
+- `partial`: polling sin finalizar o límite de 100 ofertas de Amadeus.
+- `credentials_missing`: falta configuración; no se ha consultado.
+- `error`: red, permisos/cuota, presupuesto, respuesta inválida o cambio de esquema.
+- Código 0: respondió al menos una fuente, aunque no haya ofertas o ganador; 2: ninguna respondió o argumentos inválidos.
+
+`coverage_complete` solo describe las fuentes solicitadas. Amadeus no proporciona aquí vendedor minorista final ni enlace de compra. No llamar reserva a una confirmación de precio: el código no invoca endpoints de reserva.
+
+El resto del README conserva el **diseño objetivo** y todas las variables a considerar; la tabla anterior es la referencia del alcance ya implementado.
 
 ## 1. Alcance y decisiones iniciales
 
