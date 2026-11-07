@@ -11,8 +11,9 @@ class ProviderError(Exception):
 
 
 class Client:
-    def __init__(self, budget=40, timeout=20):
+    def __init__(self, budget=40, timeout=20, profile=None):
         self.budget, self.timeout, self.calls = budget, timeout, 0
+        self.profile = profile
 
     def request(self, method, url, *, headers=None, data=None, form=None, params=None):
         if params:

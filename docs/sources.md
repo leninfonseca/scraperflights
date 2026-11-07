@@ -45,3 +45,25 @@ El feed local es un array JSON de filas como esta. `search` debe coincidir exact
 ```
 
 Para CSV, usa las mismas columnas y serializa `search` y `segments` como JSON dentro de cada celda. `amount` es el importe observado para todo el grupo. La importación conserva la hora original y no revalida el precio ni descarga feeds de terceros.
+
+## Comparar perfiles web
+
+```bash
+scraperflights compare --date 2026-12-10 --factor device --providers vueling-web trabber-web
+scraperflights compare --date 2026-12-10 --factor locale --rounds 3 --providers vueling-web
+scraperflights compare --date 2026-12-10 --factor session --providers vueling-web
+```
+
+Sustituye las fechas por fechas futuras. Usa `--origin BCN` para el sentido contrario y `--return-date` en fuentes con referencias de ida y vuelta. La comparación usa un adulto, turista, EUR y sin maletas adicionales.
+
+| Factor | Perfil A | Perfil B |
+|---|---|---|
+| `device` | Escritorio | Móvil. En HTTP cambia el User-Agent. Con `vueling-browser` también cambian la pantalla y la emulación táctil. |
+| `locale` | `es-ES` | `es-MX`. Se conserva la URL y se filtran precios en EUR. |
+| `session` | Primera visita | Segunda visita al mismo URL con cookies de la primera. En navegador se reutiliza también el contexto, incluida su caché. |
+
+Cada prueba ejecuta los dos perfiles consecutivamente por proveedor desde el mismo entorno. El orden alterna entre A→B y B→A. Por defecto se hacen dos rondas y se permiten de una a cinco. Cada par empieza sin cookies de rondas previas. La prueba de sesión puede comparar dos visitas equivalentes si la web no devuelve cookies.
+
+El JSON `output/comparison-*.json` registra el perfil, orden, hora, resultados y estado de cada fuente. Compara mínimos de la misma fuente, moneda y alcance (fechado, mensual o de ruta) por separado. `delta_b_minus_a` es B menos A. Si falta un lado, queda sin emparejar. El número de observaciones y el intervalo entre ellas ayudan a interpretar el resultado.
+
+Las diferencias pueden reflejar cambios de inventario, caché o selección de ofertas. La comparación mide mínimos publicados. Las webs actuales suelen carecer de identificadores de tarifa y total de compra. El informe no atribuye causalidad ni certifica una diferencia para el mismo billete. El modo no utiliza cuentas, claves ni proxies de rotación.

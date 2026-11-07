@@ -15,9 +15,10 @@ class VuelingBrowser(VuelingWeb):
         return find_spec('playwright') is not None
 
     def fetch(self, url):
-        if self.client.calls >= self.client.budget:
+        profile = self.client.profile
+        warm = profile is not None and profile.session == 'warm'
+        if self.client.calls + (2 if warm else 1) > self.client.budget:
             raise ProviderError('request_budget_exhausted')
-        self.client.calls += 1
         from playwright.sync_api import Error, TimeoutError, sync_playwright
 
         try:
@@ -27,13 +28,16 @@ class VuelingBrowser(VuelingWeb):
                 browser = playwright.chromium.launch(
                     executable_path=system if not bundled.is_file() else None)
                 try:
-                    page = browser.new_page(locale='es-ES')
+                    options = profile.browser_options() if profile else {'locale': 'es-ES'}
+                    page = browser.new_page(**options)
                     timeout = self.client.timeout * 1000
-                    response = page.goto(url, wait_until='domcontentloaded', timeout=timeout)
-                    if response and response.status >= 400:
-                        raise ProviderError(f'http_{response.status}')
-                    if response and response.headers.get('cf-mitigated') == 'challenge':
-                        raise ProviderError('web_access_blocked')
+                    for _ in range(2 if warm else 1):
+                        self.client.calls += 1
+                        response = page.goto(url, wait_until='domcontentloaded', timeout=timeout)
+                        if response and response.status >= 400:
+                            raise ProviderError(f'http_{response.status}')
+                        if response and response.headers.get('cf-mitigated') == 'challenge':
+                            raise ProviderError('web_access_blocked')
                     try:
                         page.get_by_text('Solo ida', exact=True).first.wait_for(timeout=timeout)
                     except TimeoutError:

@@ -9,6 +9,7 @@ from .core import Search, Store, now, rank, money
 from .http import Client, ProviderError
 from .providers import Amadeus, Skyscanner
 from .catalog import sources
+from .experiment import FACTORS, compare_profiles
 from .connectors.web.vueling import VuelingWeb
 from .connectors.browser.vueling import VuelingBrowser
 from .connectors.feeds.file import FileFeed
@@ -19,9 +20,9 @@ WEB_CONNECTORS = (VuelingWeb, IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb, Vuel
 CONNECTORS = (Amadeus, Skyscanner, *WEB_CONNECTORS)
 
 
-def run_search(search, provider_names, sellers, budget=40, top=5, feed=None):
+def run_search(search, provider_names, sellers, budget=40, top=5, feed=None, profile=None):
     started = now()
-    client = Client(budget=budget)
+    client = Client(budget=budget, profile=profile)
     observations, offers, sources, changes = [], [], [], []
     for cls in (*CONNECTORS, FileFeed):
         if cls.name not in provider_names:
@@ -109,6 +110,16 @@ def main(argv=None):
     history = sub.add_parser('history')
     history.add_argument('--db', default='data/flights.sqlite')
     history.add_argument('--limit', type=int, default=10)
+    compare = sub.add_parser('compare', help='Compare fixed web profiles without flight APIs')
+    compare.add_argument('--origin', choices=['MAD', 'BCN'], default='MAD')
+    compare.add_argument('--date', required=True)
+    compare.add_argument('--return-date')
+    compare.add_argument('--allow-stops', action='store_true')
+    compare.add_argument('--factor', choices=FACTORS, default='device')
+    compare.add_argument('--rounds', type=int, choices=range(1, 6), default=2)
+    compare.add_argument('--providers', nargs='+', choices=[c.name for c in WEB_CONNECTORS],
+                         default=[c.name for c in WEB_CONNECTORS if c is not VuelingBrowser])
+    compare.add_argument('--output', type=Path, default=Path('output'))
     q = sub.add_parser('search')
     q.add_argument('--origin', choices=['MAD', 'BCN'], default='MAD')
     q.add_argument('--date', required=True)
@@ -140,6 +151,22 @@ def main(argv=None):
             return 0
         print(json.dumps(Store(args.db).history(max(1, min(args.limit, 100))), ensure_ascii=False, indent=2))
         return 0
+    if args.command == 'compare':
+        try:
+            search = Search(args.origin, 'BCN' if args.origin == 'MAD' else 'MAD',
+                            args.date, args.return_date, direct=not args.allow_stops)
+        except ValueError as exc:
+            p.error(str(exc))
+        report = compare_profiles(search, list(dict.fromkeys(args.providers)),
+                                  args.factor, args.rounds, run_search)
+        args.output.mkdir(parents=True, exist_ok=True)
+        path = args.output / ('comparison-' + report['id'] + '.json')
+        path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+        paired = sum(pair['status'] == 'paired' for pair in report['pairs'])
+        changed = sum(c['status'] == 'different_minimum' for pair in report['pairs'] for c in pair['comparisons'])
+        print(json.dumps({'report': str(path), 'paired': paired, 'pairs': len(report['pairs']),
+                          'different_minima': changed}, ensure_ascii=False))
+        return 0 if paired else 2
     if not 0 <= args.flex_days <= 7 or not 1 <= args.budget <= 200 or not 1 <= args.top <= 20:
         p.error('flex-days: 0..7; budget: 1..200; top: 1..20')
     try:

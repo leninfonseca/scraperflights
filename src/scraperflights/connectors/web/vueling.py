@@ -2,8 +2,9 @@
 import gzip
 import re
 from html.parser import HTMLParser
+from http.cookiejar import CookieJar
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import HTTPCookieProcessor, Request, build_opener, urlopen
 
 from ...core import Offer, money
 from ...http import ProviderError
@@ -47,13 +48,25 @@ class VuelingWeb:
         return True
 
     def fetch(self, url):
-        if self.client.calls >= self.client.budget:
-            raise ProviderError('request_budget_exhausted')
-        self.client.calls += 1
+        profile = self.client.profile
+        headers = profile.headers() if profile else {
+            'User-Agent': 'scraperflights/0.1', 'Accept-Language': 'es-ES'}
+        request = Request(url, headers=headers)
+        warm = profile is not None and profile.session == 'warm'
+        opener = build_opener(HTTPCookieProcessor(CookieJar())).open if profile else urlopen
+
+        def open_page():
+            if self.client.calls >= self.client.budget:
+                raise ProviderError('request_budget_exhausted')
+            self.client.calls += 1
+            return opener(request, timeout=self.client.timeout)
+
         try:
-            with urlopen(Request(url, headers={'User-Agent': 'scraperflights/0.1',
-                                               'Accept-Language': 'es-ES'}),
-                         timeout=self.client.timeout) as response:
+            if warm:
+                with open_page() as response:
+                    if response.headers.get('cf-mitigated') == 'challenge':
+                        raise ProviderError('web_access_blocked')
+            with open_page() as response:
                 if response.headers.get('cf-mitigated') == 'challenge':
                     raise ProviderError('web_access_blocked')
                 stream = (gzip.GzipFile(fileobj=response)

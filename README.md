@@ -30,6 +30,14 @@ Las fuentes HTML publican una selección de precios para un adulto en EUR. Si se
 
 El catálogo tiene **42 fuentes**, incluidas 26 agencias, 12 metabuscadores, 3 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
 
+### Comparar precios por dispositivo, idioma o sesión
+
+```bash
+scraperflights compare --date 2026-12-10 --factor device --providers vueling-web trabber-web
+```
+
+Cambia `--factor` a `locale` o `session` para medir otra variable. El informe empareja mínimos del mismo proveedor y alcance, registra ambos perfiles y alterna el orden en cada ronda. Consulta [cómo interpretar la comparación](docs/sources.md#comparar-perfiles-web).
+
 ### Registro de vendedores
 
 `config/sellers.json` comienza vacío porque aún no se han verificado reseñas actuales. Usa el nombre exacto del vendedor identificado en la fuente. Una aprobación requiere revisión humana y evidencia; no permite omitir otros bloqueos del precio.
