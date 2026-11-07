@@ -2,6 +2,21 @@
 
 Buscador web de referencias de precio para **Madrid (MAD) ↔ Barcelona (BCN)** con histórico SQLite y exportación JSON/CSV. El comando de búsqueda funciona sin claves ni llamadas a APIs de vuelos.
 
+## Ver informes en el navegador
+
+Desde la carpeta del repositorio, ejecuta en CMD:
+
+```cmd
+py -m pip install -e .
+py -m scraperflights.viewer
+```
+
+Abre [127.0.0.1:8765](http://127.0.0.1:8765). El visor carga la lista de `output/` y abre el JSON más reciente. Puedes elegir otro informe, actualizar la lista después de una búsqueda o importar un JSON o CSV desde el selector de archivos. Para una carpeta distinta, añade `--output "C:\ruta\a\informes"`.
+
+El JSON de búsqueda muestra fechas, la referencia más barata para esas fechas, precios orientativos, el estado de cada fuente y los detalles completos. El CSV permite filtrar y ordenar sus filas. Los JSON de `compare` muestran los perfiles, las rondas y las diferencias. Los detalles desplegables conservan los campos originales.
+
+El visor se ejecuta en tu equipo. Cierra CMD o pulsa Ctrl+C para detenerlo.
+
 ## Uso
 
 ```bash

@@ -14,4 +14,4 @@ scraperflights = "scraperflights.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-scraperflights = ["sources.json"]
+scraperflights = ["sources.json", "dashboard/*"]

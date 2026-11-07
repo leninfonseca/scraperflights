@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Scraperflights · Visor de informes</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<header class="top"><div class="wrap top-inner"><a class="brand" href="/"><span class="logo" aria-hidden="true">↗</span> scraperflights</a><span class="local"><i></i> Visor local</span></div></header>
+<main class="wrap">
+<section class="intro"><div class="eyebrow">EXPLORADOR DE RESULTADOS</div><h1>Tu búsqueda, en claro.</h1><p>Consulta precios, fuentes y comparaciones de Madrid y Barcelona.</p></section>
+<div class="layout">
+<aside class="panel library">
+<div class="library-head"><h2>Informes</h2><button id="refresh" type="button" title="Actualizar lista" aria-label="Actualizar lista">↻</button></div>
+<p class="hint">Archivos de la carpeta <code>output</code></p>
+<div id="files" class="files"></div>
+<input id="upload" type="file" accept=".json,.csv" class="visually-hidden"><label class="upload" for="upload">↑ Abrir JSON o CSV</label>
+</aside>
+<section id="workspace" class="workspace" aria-label="Contenido del informe">
+<p id="message" class="message" role="status"></p>
+<div id="report"><div class="panel empty"><div class="empty-icon" aria-hidden="true">↗</div><h2>Elige un informe</h2><p>Abre un JSON para ver el recorrido completo o un CSV para revisar la tabla de precios.</p></div></div>
+</section>
+</div>
+</main>
+</body></html>
