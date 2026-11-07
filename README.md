@@ -2,12 +2,12 @@
 
 Diseño de un comparador de vuelos Madrid–Barcelona y Barcelona–Madrid, con histórico de observaciones y revalidación de ofertas.
 
-**Estado: CLI implementada con adaptadores API Amadeus y Skyscanner; requiere credenciales propias. Probada con respuestas simuladas; sin validación live autenticada en este entorno.** Las fuentes citadas son candidatas salvo indicación expresa. No se garantiza el mínimo de todo el mercado: se identifica la mejor oferta comparable observada entre las fuentes que respondieron, para una búsqueda y una ventana temporal concretas.
+**Estado: CLI híbrida con APIs de Amadeus y Skyscanner, calendario público de Vueling e importación de archivos. Las APIs requieren credenciales.** Las fuentes citadas son candidatas salvo indicación expresa. No se garantiza el mínimo de todo el mercado: se identifica la mejor oferta comparable observada entre las fuentes que respondieron, para una búsqueda y una ventana temporal concretas.
 
 
 ## Organización híbrida: ampliación pequeña
 
-Secciones creadas: **API**, **web HTTP**, **navegador** y **feeds/archivos**, con contrato común. Los dos adaptadores existentes están en `connectors/api/`; las otras secciones están preparadas y todavía no extraen precios.
+Secciones creadas: **API**, **web HTTP**, **navegador** y **feeds/archivos**, con contrato común. Amadeus y Skyscanner consultan inventario por API. Vueling aporta mínimos mensuales por HTML o Chromium. Los feeds locales aportan observaciones fechadas en JSON o CSV.
 
 Catálogo de **18 fuentes** separado del registro de reputación. Añadidas **Atrápalo, Logitravel y Viajes El Corte Inglés** como candidatas. Los métodos propuestos no implican conectores operativos ni buena valoración confirmada.
 
@@ -44,7 +44,7 @@ scraperflights search --origin BCN --date 2026-12-10 --flex-days 2 --checked-bag
 scraperflights history --limit 10
 ```
 
-`--both-directions` ejecuta dos búsquedas independientes; no crea un billete de ida/vuelta. `--flex-days` desplaza la ida y mantiene fija la vuelta. Valida todas las fechas antes de consultar. Hasta 30 búsquedas por invocación (±7 días y ambos sentidos); `--budget` aplica a **cada búsqueda**, contando autenticación, polling, revalidación y reintentos. Cada petición tiene timeout de 20 s y hasta 3 intentos transitorios; no existe un plazo global de ejecución. Las fuentes se ejecutan secuencialmente.
+`--both-directions` ejecuta dos búsquedas independientes; no crea un billete de ida/vuelta. `--flex-days` desplaza la ida y mantiene fija la vuelta. Valida todas las fechas antes de consultar. Hasta 30 búsquedas por invocación (±7 días y ambos sentidos); `--budget` aplica a **cada búsqueda**, contando autenticación, polling, revalidación y reintentos. Cada petición API tiene timeout de 20 s y hasta 3 intentos transitorios; no existe un plazo global de ejecución. Las fuentes se ejecutan secuencialmente.
 
 Se guardan histórico SQLite en `data/flights.sqlite` y reportes JSON/CSV en `output/`. Estas carpetas están excluidas de git. Los reportes contienen enlaces del vendedor que pueden caducar: trátalos como privados. No se persisten las claves ni las respuestas completas con tokens. CSV protege campos que podrían interpretarse como fórmulas.
 
@@ -63,12 +63,14 @@ Se guardan histórico SQLite en `data/flights.sqlite` y reportes JSON/CSV en `ou
 | Equipaje requerido | Se captura lo informado; si se solicita equipaje, el coste necesario no confirmado bloquea el ranking final |
 | Reputación | Registro manual con evidencia y caducidad de 90 días; sin puntuaciones inventadas |
 | Histórico/exportación, límites y aislamiento de fallos | Implementado |
-| Scraping directo de webs de aerolíneas/agencias | Pendiente; no hay parsers web activos ni evasión de bloqueos |
+| Web y navegador | Calendario mensual de Vueling en ambos sentidos para un adulto, solo ida y sin maletas requeridas |
+| Feeds | Importación local de observaciones en JSON o CSV |
+| Buscadores de reserva web y agencias | Pendientes de integración individual |
 | Niños/bebés, descuentos, otras cabinas/monedas, filtros horarios | Variables documentadas; aún no expuestas en CLI |
 | Comparar automáticamente ida/vuelta conjunta con dos billetes | Pendiente; hoy son búsquedas explícitas separadas |
 | Alertas/ejecución periódica | No configuradas; CI ejecuta pruebas, no búsquedas de pago |
 
-**No se inventa un ganador final.** Un precio API revalidado sigue sin demostrar los gastos aplicables al pago en la agencia. Las ofertas se muestran en `pending` con motivos y en `lowest_observed`; `winner` permanece null si falta evidencia. Esto es deliberado y evita prometer un ahorro con costes desconocidos. El primer paso de activación real es configurar al menos una credencial y ejecutar una búsqueda futura.
+**No se inventa un ganador final.** Un precio API revalidado sigue sin demostrar los gastos aplicables al pago en la agencia. Las ofertas se muestran en `pending` con motivos y en `lowest_observed`; `winner` permanece null si falta evidencia. Esto es deliberado y evita prometer un ahorro con costes desconocidos. Configura al menos una credencial para consultar inventario de vuelos con fecha exacta por API.
 
 ### Registro de vendedores
 

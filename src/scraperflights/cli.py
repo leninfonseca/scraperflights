@@ -9,25 +9,34 @@ from .core import Search, Store, now, rank, money
 from .http import Client, ProviderError
 from .providers import Amadeus, Skyscanner
 from .catalog import sources
+from .connectors.web.vueling import VuelingWeb
+from .connectors.browser.vueling import VuelingBrowser
+from .connectors.feeds.file import FileFeed
+
+CONNECTORS = (Amadeus, Skyscanner, VuelingWeb, VuelingBrowser)
 
 
-def run_search(search, provider_names, sellers, budget=40, top=5):
+def run_search(search, provider_names, sellers, budget=40, top=5, feed=None):
     started = now()
     client = Client(budget=budget)
     observations, offers, sources, changes = [], [], [], []
-    for cls in (Amadeus, Skyscanner):
+    for cls in (*CONNECTORS, FileFeed):
         if cls.name not in provider_names:
             continue
-        provider = cls(client)
+        provider = cls(feed if cls is FileFeed else client)
         status = {'provider': cls.name, 'started_at': now()}
         sources.append(status)
         if not provider.ready():
-            status.update(status='credentials_missing', finished_at=now())
+            status.update(status=getattr(provider, 'readiness_error', 'credentials_missing'), finished_at=now())
             continue
         try:
             found, complete = provider.search(search)
             observations.extend(o.public() for o in found)
             status.update(status=complete, results=len(found))
+            if complete in ('indicative', 'imported', 'unsupported_profile'):
+                offers.extend(found)
+                status['finished_at'] = now()
+                continue
             # Cheapest candidates first, then replacements until budget is consumed.
             found.sort(key=lambda o: money(o.amount))
             refreshed_count = 0
@@ -61,9 +70,10 @@ def run_search(search, provider_names, sellers, budget=40, top=5):
         'sources': sources, 'http_requests': client.calls, 'request_budget': budget,
         'coverage_complete': all(s['status'] == 'complete' for s in sources),
         'winner': accepted[0] if accepted else None, 'ranked': accepted, 'pending': pending,
-        'lowest_observed': min((o.public() for o in offers if not o.sandbox), key=lambda o: money(o['amount']), default=None),
+        'lowest_observed': min((o.public() for o in offers if not o.sandbox and o.provider in ('amadeus', 'skyscanner')), key=lambda o: money(o['amount']), default=None),
+        'supplemental_prices': [o.public() for o in offers if o.provider in ('vueling-web', 'vueling-browser', 'file-feed')],
         'price_changes': changes, 'observations': observations,
-        'notice': 'API observations are not a guarantee of final checkout price or whole-market coverage.'}
+        'notice': 'Price observations are not a guarantee of final checkout price or whole-market coverage.'}
 
 
 def export(run, directory):
@@ -82,7 +92,7 @@ def export(run, directory):
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description='MAD ↔ BCN: live API flight observations, repricing and history')
+    p = argparse.ArgumentParser(description='MAD ↔ BCN: hybrid flight observations, repricing and history')
     sub = p.add_subparsers(dest='command', required=True)
     catalog = sub.add_parser('sources', help='List candidate sources; does not execute searches')
     catalog.add_argument('--category', choices=['airline', 'agency', 'metasearch', 'distribution'])
@@ -102,7 +112,8 @@ def main(argv=None):
     q.add_argument('--cabin-bags', type=int, default=0, help='Required pieces per person')
     q.add_argument('--checked-bags', type=int, default=0, help='Required pieces per person')
     q.add_argument('--allow-stops', action='store_true')
-    q.add_argument('--providers', nargs='+', choices=['amadeus', 'skyscanner'], default=['amadeus', 'skyscanner'])
+    q.add_argument('--providers', nargs='+', choices=[c.name for c in CONNECTORS], default=['amadeus', 'skyscanner', 'vueling-web'])
+    q.add_argument('--feed', type=Path, help='Import a local provider snapshot in JSON or CSV')
     q.add_argument('--budget', type=int, default=40, help='HTTP request limit per search; retries count')
     q.add_argument('--top', type=int, default=5)
     q.add_argument('--sellers', default='config/sellers.json')
@@ -137,14 +148,18 @@ def main(argv=None):
         p.error(str(exc))
     Path(args.db).parent.mkdir(parents=True, exist_ok=True)
     store = Store(args.db)
+    if {'vueling-web', 'vueling-browser'} <= set(args.providers):
+        p.error('choose one Vueling method per search')
+    if args.feed:
+        args.providers.append(FileFeed.name)
     any_response = False
     for search in searches:
-        run = run_search(search, args.providers, sellers, args.budget, args.top)
+        run = run_search(search, args.providers, sellers, args.budget, args.top, args.feed)
         store.save(run)
         path = export(run, Path(args.output))
-        any_response |= any(s['status'] in ('complete', 'partial') for s in run['sources'])
+        any_response |= any(s['status'] in ('complete', 'partial', 'indicative', 'imported') for s in run['sources'])
         print(json.dumps({'search': run['search'], 'sources': run['sources'],
-            'winner': run['winner'], 'lowest_observed': run['lowest_observed'], 'pending_offers': len(run['pending']), 'report': str(path)}, ensure_ascii=False))
+            'winner': run['winner'], 'supplemental_prices': run['supplemental_prices'], 'lowest_observed': run['lowest_observed'], 'pending_offers': len(run['pending']), 'report': str(path)}, ensure_ascii=False))
     return 0 if any_response else 2
 
 

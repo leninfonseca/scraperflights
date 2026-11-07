@@ -66,14 +66,17 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web",
+      "browser"
+    ],
     "priority": 1,
-    "route_coverage": "unverified",
+    "route_coverage": "public_monthly_calendar",
     "reputation": "not_assessed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "access_review": "public_calendar_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Calendario orientativo de ida. La comprobación de tarifa y plaza para una fecha exacta requiere una fuente de inventario."
   },
   {
     "id": "air_europa",
