@@ -1,80 +1,38 @@
 # scraperflights
 
-Diseño de un comparador de vuelos Madrid–Barcelona y Barcelona–Madrid, con histórico de observaciones y revalidación de ofertas.
+Buscador web de referencias de precio para **Madrid (MAD) ↔ Barcelona (BCN)** con histórico SQLite y exportación JSON/CSV. El comando de búsqueda funciona sin claves ni llamadas a APIs de vuelos.
 
-**Estado: CLI híbrida con APIs de Amadeus y Skyscanner, calendario público de Vueling e importación de archivos. Las APIs requieren credenciales.** Las fuentes citadas son candidatas salvo indicación expresa. No se garantiza el mínimo de todo el mercado: se identifica la mejor oferta comparable observada entre las fuentes que respondieron, para una búsqueda y una ventana temporal concretas.
-
-
-## Organización híbrida: ampliación pequeña
-
-Secciones creadas: **API**, **web HTTP**, **navegador** y **feeds/archivos**, con contrato común. Amadeus y Skyscanner consultan inventario por API. Vueling aporta mínimos mensuales por HTML o Chromium. Los feeds locales aportan observaciones fechadas en JSON o CSV.
-
-Catálogo de **18 fuentes** separado del registro de reputación. Añadidas **Atrápalo, Logitravel y Viajes El Corte Inglés** como candidatas. Los métodos propuestos no implican conectores operativos ni buena valoración confirmada.
-
-```bash
-scraperflights sources
-scraperflights sources --category agency
-scraperflights sources --method web --status candidate
-scraperflights sources --status implemented
-```
-
-Este comando consulta el catálogo local y no realiza peticiones ni consume cuota API. Detalles y siguientes pasos: [docs/sources.md](docs/sources.md).
-
-## Uso del programa implementado
-
-Requiere Python 3.11 o posterior. No tiene dependencias de ejecución externas.
+## Uso
 
 ```bash
 python -m pip install -e .
-python -m unittest discover -s tests -v
-scraperflights doctor
-```
-
-Configura credenciales como variables de entorno (no las subas al repositorio). `.env.example` contiene sus nombres; el programa **no carga .env automáticamente**.
-
-- Amadeus: `AMADEUS_CLIENT_ID` y `AMADEUS_CLIENT_SECRET`; `AMADEUS_ENV=production` para inventario real o `test` para sandbox. El acceso a producción debe estar autorizado por el proveedor. Cobertura limitada por su producto; no asumir todas las low cost.
-- Skyscanner: `SKYSCANNER_API_KEY`, con acceso aprobado a Travel API. Busca compañías y vendedores disponibles en su inventario, no una lista fija de agencias.
-- `doctor` solo informa presencia de variables; no valida permisos, saldo ni credenciales.
-
-```bash
-# Sustituye las fechas por fechas futuras.
-scraperflights search --origin MAD --date 2026-12-10 --both-directions
-scraperflights search --origin BCN --date 2026-12-10 --return-date 2026-12-15 --adults 2
-scraperflights search --origin BCN --date 2026-12-10 --flex-days 2 --checked-bags 1 --budget 30 --top 5
+scraperflights sources --category agency
+scraperflights sources --method web --status implemented
+scraperflights search --date 2026-12-10 --both-directions
+scraperflights search --date 2026-12-22 --return-date 2027-01-06 --providers iberia-web aireuropa-web
 scraperflights history --limit 10
 ```
 
-`--both-directions` ejecuta dos búsquedas independientes; no crea un billete de ida/vuelta. `--flex-days` desplaza la ida y mantiene fija la vuelta. Valida todas las fechas antes de consultar. Hasta 30 búsquedas por invocación (±7 días y ambos sentidos); `--budget` aplica a **cada búsqueda**, contando autenticación, polling, revalidación y reintentos. Cada petición API tiene timeout de 20 s y hasta 3 intentos transitorios; no existe un plazo global de ejecución. Las fuentes se ejecutan secuencialmente.
+Sustituye las fechas por fechas futuras. `--flex-days` amplía la búsqueda alrededor de la salida, con la vuelta fija. `--budget` limita las peticiones principales de cada búsqueda. Los informes se guardan en `output/` y el histórico en `data/flights.sqlite`.
 
-Se guardan histórico SQLite en `data/flights.sqlite` y reportes JSON/CSV en `output/`. Estas carpetas están excluidas de git. Los reportes contienen enlaces del vendedor que pueden caducar: trátalos como privados. No se persisten las claves ni las respuestas completas con tokens. CSV protege campos que podrían interpretarse como fórmulas.
-
-### Qué hace realmente esta versión
-
-| Función | Estado |
+| Fuente | Datos disponibles |
 |---|---|
-| MAD ↔ BCN, adultos, turista, EUR, directos/escalas | Implementado |
-| Ida/vuelta, fechas flexibles y ambos sentidos independientes | Implementado |
-| Consulta Amadeus Search y Price | Implementado; credenciales necesarias; pendiente smoke test live |
-| Skyscanner create/poll y refresh create/poll | Implementado; acceso partner necesario; pendiente smoke test live |
-| Vendedores de Skyscanner | Se extraen dinámicamente con precio y enlace cuando existen |
-| Revalidación de finalistas y variaciones | Implementado; fallos y búsquedas parciales explícitos |
-| Precio mínimo observado | `lowest_observed`, provisional, sin garantía de coste final |
-| Total final y ganador verificable | Solo elegible si hay total completo, reputación aprobada y verificación reciente; los adaptadores actuales no certifican gastos finales de checkout |
-| Equipaje requerido | Se captura lo informado; si se solicita equipaje, el coste necesario no confirmado bloquea el ranking final |
-| Reputación | Registro manual con evidencia y caducidad de 90 días; sin puntuaciones inventadas |
-| Histórico/exportación, límites y aislamiento de fallos | Implementado |
-| Web y navegador | Calendario mensual de Vueling en ambos sentidos para un adulto, solo ida y sin maletas requeridas |
-| Feeds | Importación local de observaciones en JSON o CSV |
-| Buscadores de reserva web y agencias | Pendientes de integración individual |
-| Niños/bebés, descuentos, otras cabinas/monedas, filtros horarios | Variables documentadas; aún no expuestas en CLI |
-| Comparar automáticamente ida/vuelta conjunta con dos billetes | Pendiente; hoy son búsquedas explícitas separadas |
-| Alertas/ejecución periódica | No configuradas; CI ejecuta pruebas, no búsquedas de pago |
+| Vueling | Mínimo mensual de ida publicado en su calendario. HTML por defecto, Chromium opcional. |
+| Iberia | Tarjetas de precios anunciados que coinciden con las fechas y el trayecto solicitados. |
+| Air Europa | Tarifas de turista fechadas incluidas en los datos públicos de la página. |
+| Kiwi.com | Precios de ida fechados en los datos estructurados de la página. Se omiten resultados con escalas contradictorias cuando se piden directos. |
+| Trabber | Precio mínimo anunciado para la ruta. La fecha y el tipo de viaje de ese mínimo quedan sin confirmar. |
+| Feed local | Observaciones del perfil solicitado importadas de JSON o CSV. |
 
-**No se inventa un ganador final.** Un precio API revalidado sigue sin demostrar los gastos aplicables al pago en la agencia. Las ofertas se muestran en `pending` con motivos y en `lowest_observed`; `winner` permanece null si falta evidencia. Esto es deliberado y evita prometer un ahorro con costes desconocidos. Configura al menos una credencial para consultar inventario de vuelos con fecha exacta por API.
+Las fuentes HTML publican una selección de precios para un adulto en EUR. Si se piden más pasajeros o maletas, se indica que el perfil no está soportado. Un precio fechado puede corresponder a una captura previa del vendedor. Si falta información de escalas, el informe lo indica.
+
+`lowest_dated_reference` muestra la referencia fechada más barata de las extraídas. `supplemental_prices` recoge también mínimos mensuales, mínimos de ruta e importaciones. Si una fuente responde sin coincidencias, el informe puede mostrar cero referencias. Eso indica qué publicó la página en esa captura. `winner` queda vacío mientras falten disponibilidad, equipaje o costes de compra confirmados.
+
+El catálogo tiene **42 fuentes**, incluidas 26 agencias, 12 metabuscadores, 3 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
 
 ### Registro de vendedores
 
-`config/sellers.json` comienza vacío porque aún no se han verificado reseñas actuales. Usa el nombre exacto del vendedor devuelto por la API. Una aprobación requiere revisión humana y evidencia; no permite omitir otros bloqueos del precio.
+`config/sellers.json` comienza vacío porque aún no se han verificado reseñas actuales. Usa el nombre exacto del vendedor identificado en la fuente. Una aprobación requiere revisión humana y evidencia; no permite omitir otros bloqueos del precio.
 
 ```json
 {
@@ -93,15 +51,12 @@ No se incluye ninguna aprobación de ejemplo en el fichero real. Las reseñas no
 
 ### Estados y códigos de salida
 
-- `complete`: el proveedor terminó la consulta; no significa todo el mercado ni precio de checkout.
-- `partial`: polling sin finalizar o límite de 100 ofertas de Amadeus.
-- `credentials_missing`: falta configuración; no se ha consultado.
-- `error`: red, permisos/cuota, presupuesto, respuesta inválida o cambio de esquema.
-- Código 0: respondió al menos una fuente, aunque no haya ofertas o ganador; 2: ninguna respondió o argumentos inválidos.
+- `indicative` indica una página interpretada, aunque no publique coincidencias.
+- `imported` indica un archivo leído. `unsupported_profile` indica una combinación que la fuente no puede evaluar.
+- `error` indica bloqueo, fallo de red, presupuesto agotado o cambio de estructura.
+- Código 0 si se interpretó alguna fuente. Código 2 si ninguna respondió de forma utilizable o los argumentos son inválidos.
 
-`coverage_complete` solo describe las fuentes solicitadas. Amadeus no proporciona aquí vendedor minorista final ni enlace de compra. No llamar reserva a una confirmación de precio: el código no invoca endpoints de reserva.
-
-El resto del README conserva el **diseño objetivo** y todas las variables a considerar; la tabla anterior es la referencia del alcance ya implementado.
+Las secciones siguientes conservan el diseño objetivo y las variables de precios a considerar.
 
 ## 1. Alcance y decisiones iniciales
 

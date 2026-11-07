@@ -16,7 +16,7 @@
     "reputation": "not_assessed",
     "access_review": "credentials_required",
     "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "notes": "Adaptador API histórico. Fuera del comando de búsqueda web."
   },
   {
     "id": "skyscanner",
@@ -37,7 +37,7 @@
     "reputation": "not_assessed",
     "access_review": "credentials_required",
     "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "notes": "Adaptador API histórico. Fuera del comando de búsqueda web."
   },
   {
     "id": "iberia",
@@ -48,14 +48,16 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 1,
-    "route_coverage": "unverified",
+    "route_coverage": "dated_public_references",
     "reputation": "not_assessed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar."
   },
   {
     "id": "vueling",
@@ -87,14 +89,16 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "dated_public_references",
     "reputation": "not_assessed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar."
   },
   {
     "id": "google_flights",
@@ -328,5 +332,441 @@
     "access_review": "pending",
     "discovery_verified_at": "2026-11-05",
     "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+  },
+  {
+    "id": "kiwi",
+    "name": "Kiwi.com",
+    "category": "agency",
+    "url": "https://www.kiwi.com/es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
+    "priority": 2,
+    "route_coverage": "dated_public_references",
+    "reputation": "not_reviewed",
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar."
+  },
+  {
+    "id": "destinia",
+    "name": "Destinia",
+    "category": "agency",
+    "url": "https://destinia.com/es/vuelos",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "budgetair",
+    "name": "BudgetAir",
+    "category": "agency",
+    "url": "https://www.budgetair.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "mytrip",
+    "name": "Mytrip",
+    "category": "agency",
+    "url": "https://es.mytrip.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "gotogate",
+    "name": "Gotogate",
+    "category": "agency",
+    "url": "https://es.gotogate.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "esky",
+    "name": "eSky",
+    "category": "agency",
+    "url": "https://www.esky.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "flightnetwork",
+    "name": "FlightNetwork",
+    "category": "agency",
+    "url": "https://www.flightnetwork.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "cheaptickets",
+    "name": "CheapTickets",
+    "category": "agency",
+    "url": "https://www.cheaptickets.com/Flights",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "travelocity",
+    "name": "Travelocity",
+    "category": "agency",
+    "url": "https://www.travelocity.com/Flights",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "orbitz",
+    "name": "Orbitz",
+    "category": "agency",
+    "url": "https://www.orbitz.com/Flights",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "priceline",
+    "name": "Priceline",
+    "category": "agency",
+    "url": "https://www.priceline.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "cheapoair",
+    "name": "CheapOair",
+    "category": "agency",
+    "url": "https://www.cheapoair.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "halcon",
+    "name": "Halcón Viajes",
+    "category": "agency",
+    "url": "https://www.halconviajes.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "btravel",
+    "name": "B travel",
+    "category": "agency",
+    "url": "https://www.btravel.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "nautalia",
+    "name": "Nautalia Viajes",
+    "category": "agency",
+    "url": "https://www.nautaliaviajes.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "carrefour",
+    "name": "Viajes Carrefour",
+    "category": "agency",
+    "url": "https://www.viajes.carrefour.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "trabber",
+    "name": "Trabber",
+    "category": "metasearch",
+    "url": "https://www.trabber.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
+    "priority": 2,
+    "route_coverage": "public_route_minimum",
+    "reputation": "not_assessed",
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Mínimo orientativo de la ruta, sin filtro de fecha ni disponibilidad de compra."
+  },
+  {
+    "id": "liligo",
+    "name": "Liligo",
+    "category": "metasearch",
+    "url": "https://www.liligo.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "wego",
+    "name": "Wego",
+    "category": "metasearch",
+    "url": "https://www.wego.com.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "idealo",
+    "name": "idealo Vuelos",
+    "category": "metasearch",
+    "url": "https://vuelos.idealo.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "jetcost",
+    "name": "Jetcost",
+    "category": "metasearch",
+    "url": "https://www.jetcost.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "cheapflights",
+    "name": "Cheapflights",
+    "category": "metasearch",
+    "url": "https://www.cheapflights.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "skiplagged",
+    "name": "Skiplagged",
+    "category": "metasearch",
+    "url": "https://skiplagged.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "farecompare",
+    "name": "FareCompare",
+    "category": "metasearch",
+    "url": "https://www.farecompare.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
   }
 ]

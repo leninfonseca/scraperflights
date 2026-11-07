@@ -13,7 +13,10 @@ from .connectors.web.vueling import VuelingWeb
 from .connectors.browser.vueling import VuelingBrowser
 from .connectors.feeds.file import FileFeed
 
-CONNECTORS = (Amadeus, Skyscanner, VuelingWeb, VuelingBrowser)
+from .connectors.web.routes import IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb
+
+WEB_CONNECTORS = (VuelingWeb, IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb, VuelingBrowser)
+CONNECTORS = (Amadeus, Skyscanner, *WEB_CONNECTORS)
 
 
 def run_search(search, provider_names, sellers, budget=40, top=5, feed=None):
@@ -66,12 +69,16 @@ def run_search(search, provider_names, sellers, budget=40, top=5, feed=None):
             status.update(status='error', error=str(exc) if isinstance(exc, ProviderError) else 'schema_validation_failed')
         status['finished_at'] = now()
     accepted, pending = rank(offers, search, sellers)
+    supplemental = [o for o in offers if any(flag in o.warnings for flag in (
+        'indicative_monthly_minimum', 'indicative_dated_reference', 'indicative_route_minimum', 'imported_snapshot'))]
+    dated = [o for o in supplemental if 'indicative_dated_reference' in o.warnings]
     return {'id': str(uuid4()), 'started_at': started, 'finished_at': now(), 'search': asdict(search),
         'sources': sources, 'http_requests': client.calls, 'request_budget': budget,
         'coverage_complete': all(s['status'] == 'complete' for s in sources),
         'winner': accepted[0] if accepted else None, 'ranked': accepted, 'pending': pending,
         'lowest_observed': min((o.public() for o in offers if not o.sandbox and o.provider in ('amadeus', 'skyscanner')), key=lambda o: money(o['amount']), default=None),
-        'supplemental_prices': [o.public() for o in offers if o.provider in ('vueling-web', 'vueling-browser', 'file-feed')],
+        'supplemental_prices': [o.public() for o in supplemental],
+        'lowest_dated_reference': min((o.public() for o in dated), key=lambda o: money(o['amount']), default=None),
         'price_changes': changes, 'observations': observations,
         'notice': 'Price observations are not a guarantee of final checkout price or whole-market coverage.'}
 
@@ -112,7 +119,7 @@ def main(argv=None):
     q.add_argument('--cabin-bags', type=int, default=0, help='Required pieces per person')
     q.add_argument('--checked-bags', type=int, default=0, help='Required pieces per person')
     q.add_argument('--allow-stops', action='store_true')
-    q.add_argument('--providers', nargs='+', choices=[c.name for c in CONNECTORS], default=['amadeus', 'skyscanner', 'vueling-web'])
+    q.add_argument('--providers', nargs='+', choices=[c.name for c in (*WEB_CONNECTORS, FileFeed)], default=[c.name for c in WEB_CONNECTORS if c is not VuelingBrowser])
     q.add_argument('--feed', type=Path, help='Import a local provider snapshot in JSON or CSV')
     q.add_argument('--budget', type=int, default=40, help='HTTP request limit per search; retries count')
     q.add_argument('--top', type=int, default=5)
@@ -150,7 +157,9 @@ def main(argv=None):
     store = Store(args.db)
     if {'vueling-web', 'vueling-browser'} <= set(args.providers):
         p.error('choose one Vueling method per search')
-    if args.feed:
+    if FileFeed.name in args.providers and not args.feed:
+        p.error('file-feed requires --feed')
+    if args.feed and FileFeed.name not in args.providers:
         args.providers.append(FileFeed.name)
     any_response = False
     for search in searches:
@@ -159,7 +168,7 @@ def main(argv=None):
         path = export(run, Path(args.output))
         any_response |= any(s['status'] in ('complete', 'partial', 'indicative', 'imported') for s in run['sources'])
         print(json.dumps({'search': run['search'], 'sources': run['sources'],
-            'winner': run['winner'], 'supplemental_prices': run['supplemental_prices'], 'lowest_observed': run['lowest_observed'], 'pending_offers': len(run['pending']), 'report': str(path)}, ensure_ascii=False))
+            'winner': run['winner'], 'lowest_dated_reference': run['lowest_dated_reference'], 'supplemental_prices': run['supplemental_prices'], 'lowest_observed': run['lowest_observed'], 'pending_offers': len(run['pending']), 'report': str(path)}, ensure_ascii=False))
     return 0 if any_response else 2
 
 
