@@ -10,6 +10,7 @@ const formatDate = value => {
 };
 const labels = {
   indicative_dated_reference: 'Coincide con tus fechas', indicative_monthly_minimum: 'Mínimo del mes',
+  indicative_historical_dated_reference: 'Precio histórico para tus fechas',
   indicative_route_minimum: 'Mínimo de la ruta', imported_snapshot: 'Precio importado',
   availability_and_checkout_unverified: 'Disponibilidad y total por confirmar',
   exact_flight_not_confirmed: 'Vuelo concreto sin confirmar', stops_unconfirmed: 'Escalas sin confirmar',
@@ -170,6 +171,8 @@ function sources(parent, rows) {
     node.append(el('p', 'Este informe no incluye estados de fuentes.', 'subtle'));
     return;
   }
+  const responded = rows.filter(row => ['indicative', 'imported', 'complete', 'partial'].includes(row.status)).length;
+  node.append(el('p', responded + ' de ' + rows.length + ' fuentes devolvieron datos interpretables.', 'subtle'));
   node.append(table(['Proveedor', 'Estado', 'Resultados', 'Hora de fin', 'Detalle'],
     rows.map(row => [row.provider, el('span', label(row.status), 'tag'), row.results,
       formatDate(row.finished_at), details(row.error || 'Ver datos', row)])));
@@ -411,9 +414,9 @@ catalog.addEventListener('toggle', async () => {
     const rows = await response.json();
     const categories = {agency: 'Agencia', airline: 'Aerolínea', metasearch: 'Comparador', distribution: 'Distribuidor'};
     container.replaceChildren(el('p', rows.length + ' fuentes. Las candidatas están disponibles como enlaces para consulta manual.', 'subtle'),
-      table(['Empresa', 'Tipo', 'Consulta en el visor', 'Enlace'], rows.map(row => [
+      table(['Empresa', 'Tipo', 'Consulta en el visor', 'Cobertura', 'Enlace'], rows.map(row => [
         row.name, categories[row.category], asList(row.implemented_methods).includes('web') ? 'Integrada' : row.status === 'candidate' ? 'Candidata' : 'Adaptador histórico',
-        catalogLinks(row),
+        row.notes, catalogLinks(row),
       ])));
   } catch {
     delete container.dataset.loaded;

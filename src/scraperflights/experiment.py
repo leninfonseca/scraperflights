@@ -11,7 +11,8 @@ FACTORS = {
     'locale': ('es-ES', 'es-MX'),
     'session': ('fresh', 'warm'),
 }
-SCOPES = ('indicative_dated_reference', 'indicative_monthly_minimum', 'indicative_route_minimum')
+SCOPES = ('indicative_dated_reference', 'indicative_monthly_minimum', 'indicative_route_minimum',
+          'indicative_historical_dated_reference')
 
 
 def observations_by_scope(run):

@@ -14,9 +14,11 @@ from .connectors.web.vueling import VuelingWeb
 from .connectors.browser.vueling import VuelingBrowser
 from .connectors.feeds.file import FileFeed
 
+from .connectors.web.agency import TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb
 from .connectors.web.routes import IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb
 
-WEB_CONNECTORS = (VuelingWeb, IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb, VuelingBrowser)
+WEB_CONNECTORS = (VuelingWeb, IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb,
+                  TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb, VuelingBrowser)
 DEFAULT_WEB_PROVIDERS = tuple(c.name for c in WEB_CONNECTORS if c is not VuelingBrowser)
 CONNECTORS = (Amadeus, Skyscanner, *WEB_CONNECTORS)
 
@@ -72,7 +74,8 @@ def run_search(search, provider_names, sellers, budget=40, top=5, feed=None, pro
         status['finished_at'] = now()
     accepted, pending = rank(offers, search, sellers)
     supplemental = [o for o in offers if any(flag in o.warnings for flag in (
-        'indicative_monthly_minimum', 'indicative_dated_reference', 'indicative_route_minimum', 'imported_snapshot'))]
+        'indicative_monthly_minimum', 'indicative_dated_reference', 'indicative_route_minimum',
+        'indicative_historical_dated_reference', 'imported_snapshot'))]
     dated = [o for o in supplemental if 'indicative_dated_reference' in o.warnings]
     return {'id': str(uuid4()), 'started_at': started, 'finished_at': now(), 'search': asdict(search),
         'sources': sources, 'http_requests': client.calls, 'request_budget': budget,

@@ -99,6 +99,11 @@ class KiwiWeb(RoutePage):
     name, seller = 'kiwi-web', 'Kiwi.com'
     route_url = 'https://www.kiwi.com/es/cheap-flights/{origin}-spain/{destination}-spain/'
 
+    def search(self, search):
+        if search.return_date:
+            return [], 'unsupported_profile'
+        return super().search(search)
+
     def extract(self, html, search):
         results = {}
         seen = False
@@ -110,8 +115,6 @@ class KiwiWeb(RoutePage):
             if not isinstance(block, dict) or block.get('@type') != 'CollectionPage':
                 continue
             seen = True
-            if search.return_date:
-                return []
             for entry in block.get('mainEntity', {}).get('itemListElement', []):
                 offer = entry.get('item', {})
                 if offer.get('priceCurrency') != 'EUR' or offer.get('price') is None:

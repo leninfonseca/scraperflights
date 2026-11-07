@@ -38,14 +38,17 @@ Sustituye las fechas por fechas futuras. `--flex-days` amplía la búsqueda alre
 | Iberia | Tarjetas de precios anunciados que coinciden con las fechas y el trayecto solicitados. |
 | Air Europa | Tarifas de turista fechadas incluidas en los datos públicos de la página. |
 | Kiwi.com | Precios de ida fechados en los datos estructurados de la página. Se omiten resultados con escalas contradictorias cuando se piden directos. |
-| Trabber | Precio mínimo anunciado para la ruta. La fecha y el tipo de viaje de ese mínimo quedan sin confirmar. |
+| Trip.com | Referencias publicadas de ida y vuelta con coincidencia exacta de las fechas. |
+| Wego | Precios históricos publicados con coincidencia de fechas. |
+| Rumbo | Tarjetas de ofertas con fechas, horarios y escalas, si están publicadas. |
+| Trabber, KAYAK, momondo y Liligo | Mínimo anunciado para la ruta. Fecha y tipo de viaje sin confirmar. |
 | Feed local | Observaciones del perfil solicitado importadas de JSON o CSV. |
 
 Las fuentes HTML publican una selección de precios para un adulto en EUR. Si se piden más pasajeros o maletas, se indica que el perfil no está soportado. Un precio fechado puede corresponder a una captura previa del vendedor. Si falta información de escalas, el informe lo indica.
 
-`lowest_dated_reference` muestra la referencia fechada más barata de las extraídas. `supplemental_prices` recoge también mínimos mensuales, mínimos de ruta e importaciones. Si una fuente responde sin coincidencias, el informe puede mostrar cero referencias. Eso indica qué publicó la página en esa captura. `winner` queda vacío mientras falten disponibilidad, equipaje o costes de compra confirmados.
+`lowest_dated_reference` muestra la referencia fechada más barata de las extraídas. `supplemental_prices` recoge también mínimos mensuales, mínimos de ruta, referencias históricas e importaciones. Si una fuente responde sin coincidencias, el informe puede mostrar cero referencias. Eso indica qué publicó la página en esa captura. `winner` queda vacío mientras falten disponibilidad, equipaje o costes de compra confirmados.
 
-El catálogo tiene **47 fuentes**, incluidas 29 agencias, 12 metabuscadores, 5 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
+La búsqueda automática utiliza **11 webs** por defecto. El catálogo tiene **47 fuentes**, incluidas 29 agencias, 12 metabuscadores, 5 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
 
 ### Comparar precios por dispositivo, idioma o sesión
 
