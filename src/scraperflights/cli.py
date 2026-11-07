@@ -17,6 +17,7 @@ from .connectors.feeds.file import FileFeed
 from .connectors.web.routes import IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb
 
 WEB_CONNECTORS = (VuelingWeb, IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb, VuelingBrowser)
+DEFAULT_WEB_PROVIDERS = tuple(c.name for c in WEB_CONNECTORS if c is not VuelingBrowser)
 CONNECTORS = (Amadeus, Skyscanner, *WEB_CONNECTORS)
 
 
@@ -118,7 +119,7 @@ def main(argv=None):
     compare.add_argument('--factor', choices=FACTORS, default='device')
     compare.add_argument('--rounds', type=int, choices=range(1, 6), default=2)
     compare.add_argument('--providers', nargs='+', choices=[c.name for c in WEB_CONNECTORS],
-                         default=[c.name for c in WEB_CONNECTORS if c is not VuelingBrowser])
+                         default=list(DEFAULT_WEB_PROVIDERS))
     compare.add_argument('--output', type=Path, default=Path('output'))
     q = sub.add_parser('search')
     q.add_argument('--origin', choices=['MAD', 'BCN'], default='MAD')
@@ -130,7 +131,7 @@ def main(argv=None):
     q.add_argument('--cabin-bags', type=int, default=0, help='Required pieces per person')
     q.add_argument('--checked-bags', type=int, default=0, help='Required pieces per person')
     q.add_argument('--allow-stops', action='store_true')
-    q.add_argument('--providers', nargs='+', choices=[c.name for c in (*WEB_CONNECTORS, FileFeed)], default=[c.name for c in WEB_CONNECTORS if c is not VuelingBrowser])
+    q.add_argument('--providers', nargs='+', choices=[c.name for c in (*WEB_CONNECTORS, FileFeed)], default=list(DEFAULT_WEB_PROVIDERS))
     q.add_argument('--feed', type=Path, help='Import a local provider snapshot in JSON or CSV')
     q.add_argument('--budget', type=int, default=40, help='HTTP request limit per search; retries count')
     q.add_argument('--top', type=int, default=5)

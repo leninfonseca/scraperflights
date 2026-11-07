@@ -10,7 +10,7 @@ La búsqueda combina páginas públicas y archivos importados.
 | Feeds/archivos | `src/scraperflights/connectors/feeds/` | Importador local JSON y CSV. Se aporta el archivo del proveedor |
 | Contrato común | `src/scraperflights/connectors/base.py` | ready, search y refresh; compatible con los adaptadores API |
 
-El catálogo distribuido contiene 42 fuentes. Consulta las categorías y el estado con `scraperflights sources`. Las marcas candidatas pueden compartir inventario o grupo y requieren comprobar cobertura de la ruta, condiciones de acceso y reputación.
+El catálogo distribuido contiene 47 fuentes. Consulta las categorías y el estado con `scraperflights sources`. Las marcas candidatas pueden compartir inventario o grupo y requieren comprobar cobertura de la ruta, condiciones de acceso y reputación.
 
 Iberia, Air Europa, Kiwi.com y Trabber se leen desde sus páginas públicas. Iberia y Air Europa se probaron con referencias fechadas de ida y vuelta. Kiwi.com publica una selección dinámica de fechas. El precio mínimo de Trabber es de ruta y se mantiene fuera del mínimo fechado.
 

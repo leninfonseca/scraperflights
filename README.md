@@ -15,6 +15,8 @@ Abre [127.0.0.1:8765](http://127.0.0.1:8765). El visor carga la lista de `output
 
 El JSON de búsqueda muestra fechas, la referencia más barata para esas fechas, precios orientativos, el estado de cada fuente y los detalles completos. El CSV permite filtrar y ordenar sus filas. Los JSON de `compare` muestran los perfiles, las rondas y las diferencias. Los detalles desplegables conservan los campos originales.
 
+Para buscar desde el visor, selecciona la ruta, elige **Solo ida** o **Ida y vuelta** y rellena las fechas. El visor guarda el JSON y el CSV en la carpeta de salida y añade la búsqueda al histórico. El catálogo del visor enlaza tanto a las fuentes integradas como a las candidatas para consulta manual.
+
 El visor se ejecuta en tu equipo. Cierra CMD o pulsa Ctrl+C para detenerlo.
 
 ## Uso
@@ -43,7 +45,7 @@ Las fuentes HTML publican una selección de precios para un adulto en EUR. Si se
 
 `lowest_dated_reference` muestra la referencia fechada más barata de las extraídas. `supplemental_prices` recoge también mínimos mensuales, mínimos de ruta e importaciones. Si una fuente responde sin coincidencias, el informe puede mostrar cero referencias. Eso indica qué publicó la página en esa captura. `winner` queda vacío mientras falten disponibilidad, equipaje o costes de compra confirmados.
 
-El catálogo tiene **42 fuentes**, incluidas 26 agencias, 12 metabuscadores, 3 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
+El catálogo tiene **47 fuentes**, incluidas 29 agencias, 12 metabuscadores, 5 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
 
 ### Comparar precios por dispositivo, idioma o sesión
 

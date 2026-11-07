@@ -339,3 +339,84 @@ $('upload').addEventListener('change', event => {
   event.target.value = '';
 });
 refreshFiles(true);
+
+const searchForm = $('search-form');
+const departure = $('departure');
+const returnDate = $('return-date');
+const tripType = $('trip-type');
+const searchButton = $('search-button');
+departure.min = new Intl.DateTimeFormat('sv-SE', {timeZone: 'Europe/Madrid'}).format(new Date());
+
+function updateReturnDate() {
+  const roundTrip = tripType.value === 'round-trip';
+  $('return-field').hidden = !roundTrip;
+  returnDate.disabled = !roundTrip;
+  returnDate.required = roundTrip;
+  returnDate.min = departure.value || departure.min;
+}
+departure.addEventListener('change', updateReturnDate);
+tripType.addEventListener('change', updateReturnDate);
+updateReturnDate();
+
+searchForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  const values = new FormData(searchForm);
+  const status = $('search-status');
+  searchButton.disabled = true;
+  status.textContent = 'Consultando las webs… Puede tardar unos segundos.';
+  try {
+    const response = await fetch('/search', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({origin: values.get('origin'), departure: values.get('departure'),
+                            return_date: values.get('return_date') || null}),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Error al buscar.');
+    await openReport(result.name, async () => {
+      const file = await fetch('/report?name=' + encodeURIComponent(result.name));
+      if (!file.ok) throw new Error('No se pudo abrir el informe.');
+      return file.text();
+    });
+    await refreshFiles();
+    status.textContent = 'Búsqueda terminada. Consulta el informe y el estado de cada web.';
+  } catch (error) {
+    status.textContent = 'No se pudo completar la búsqueda. ' + error.message;
+  } finally {
+    searchButton.disabled = false;
+  }
+});
+
+function catalogLinks(row) {
+  if (!row.route_links) return external(row.url);
+  const links = el('div');
+  for (const [route, url] of Object.entries(row.route_links)) {
+    const link = external(url);
+    if (typeof link !== 'string') {
+      link.textContent = route.replace('-', ' → ');
+      links.append(link, el('br'));
+    }
+  }
+  return links;
+}
+
+const catalog = document.querySelector('.catalog');
+catalog.addEventListener('toggle', async () => {
+  const container = $('catalog-results');
+  if (!catalog.open || container.dataset.loaded) return;
+  container.dataset.loaded = 'true';
+  container.replaceChildren(el('p', 'Cargando fuentes…', 'subtle'));
+  try {
+    const response = await fetch('/catalog');
+    if (!response.ok) throw new Error('Error al cargar el catálogo');
+    const rows = await response.json();
+    const categories = {agency: 'Agencia', airline: 'Aerolínea', metasearch: 'Comparador', distribution: 'Distribuidor'};
+    container.replaceChildren(el('p', rows.length + ' fuentes. Las candidatas están disponibles como enlaces para consulta manual.', 'subtle'),
+      table(['Empresa', 'Tipo', 'Consulta en el visor', 'Enlace'], rows.map(row => [
+        row.name, categories[row.category], asList(row.implemented_methods).includes('web') ? 'Integrada' : row.status === 'candidate' ? 'Candidata' : 'Adaptador histórico',
+        catalogLinks(row),
+      ])));
+  } catch {
+    delete container.dataset.loaded;
+    container.replaceChildren(el('p', 'No se pudo cargar el catálogo.', 'subtle'));
+  }
+});

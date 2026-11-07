@@ -12,6 +12,21 @@
 <header class="top"><div class="wrap top-inner"><a class="brand" href="/"><span class="logo" aria-hidden="true">↗</span> scraperflights</a><span class="local"><i></i> Visor local</span></div></header>
 <main class="wrap">
 <section class="intro"><div class="eyebrow">EXPLORADOR DE RESULTADOS</div><h1>Tu búsqueda, en claro.</h1><p>Consulta precios, fuentes y comparaciones de Madrid y Barcelona.</p></section>
+<section class="panel section search-panel" aria-labelledby="search-heading">
+<div class="section-head"><h2 id="search-heading">Nueva búsqueda</h2><span class="tag">Sin claves API</span></div>
+<form id="search-form" class="search-form">
+<label>Ruta<select name="origin"><option value="MAD">Madrid → Barcelona</option><option value="BCN">Barcelona → Madrid</option></select></label>
+<label>Tipo de viaje<select id="trip-type"><option value="one-way">Solo ida</option><option value="round-trip">Ida y vuelta</option></select></label>
+<label>Salida<input id="departure" name="departure" type="date" required></label>
+<label id="return-field" hidden>Regreso<input id="return-date" name="return_date" type="date" disabled></label>
+<button id="search-button" class="primary" type="submit">Buscar vuelos</button>
+</form>
+<p id="search-status" class="subtle" role="status">Un adulto en turista, en euros. Se consultan las webs integradas.</p>
+</section>
+<details class="panel section catalog">
+<summary>Catálogo de compañías y agencias</summary>
+<div id="catalog-results"></div>
+</details>
 <div class="layout">
 <aside class="panel library">
 <div class="library-head"><h2>Informes</h2><button id="refresh" type="button" title="Actualizar lista" aria-label="Actualizar lista">↻</button></div>

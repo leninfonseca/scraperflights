@@ -237,11 +237,15 @@
     "status": "candidate",
     "implemented_methods": [],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "public_route_page",
     "reputation": "not_reviewed",
     "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Páginas públicas de la ruta. Comprobar si el importe está condicionado a Prime. Extracción automática pendiente.",
+    "route_links": {
+      "MAD-BCN": "https://www.edreams.es/vuelos/madrid-barcelona/MAD/BCN/",
+      "BCN-MAD": "https://www.edreams.es/vuelos/barcelona-madrid/BCN/MAD/"
+    }
   },
   {
     "id": "opodo",
@@ -768,5 +772,95 @@
     "access_review": "pending",
     "discovery_verified_at": null,
     "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+  },
+  {
+    "id": "amex_travel",
+    "name": "American Express Viajes",
+    "category": "agency",
+    "url": "https://www.americanexpress.com/es/viajes/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Servicio con condiciones de acceso propias."
+  },
+  {
+    "id": "volagratis",
+    "name": "Volagratis",
+    "category": "agency",
+    "url": "https://www.volagratis.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Portal italiano. Comprobar moneda y mercado."
+  },
+  {
+    "id": "flight_centre",
+    "name": "Flight Centre",
+    "category": "agency",
+    "url": "https://www.flightcentre.co.uk/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Portal británico. Comprobar mercado y moneda."
+  },
+  {
+    "id": "iberia_express",
+    "name": "Iberia Express",
+    "category": "airline",
+    "url": "https://www.iberiaexpress.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Comprobar ruta y operador antes de integrar."
+  },
+  {
+    "id": "air_nostrum",
+    "name": "Air Nostrum",
+    "category": "airline",
+    "url": "https://www.airnostrum.es/es/contacto",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Deriva las reservas a Iberia. Puede compartir inventario."
   }
 ]
