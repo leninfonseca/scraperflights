@@ -126,14 +126,20 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "public_route_minimum",
     "reputation": "not_assessed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Mínimo de ruta. Puede compartir datos con momondo.",
+    "route_links": {
+      "MAD-BCN": "https://www.kayak.es/vuelos/Madrid-Adolfo-Suarez-Madrid-Barajas-MAD/Barcelona-El-Prat-BCN",
+      "BCN-MAD": "https://www.kayak.es/vuelos/Barcelona-El-Prat-BCN/Madrid-Adolfo-Suarez-Madrid-Barajas-MAD"
+    }
   },
   {
     "id": "momondo",
@@ -144,14 +150,20 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "public_route_minimum",
     "reputation": "not_assessed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Mínimo de ruta. Puede compartir datos con KAYAK.",
+    "route_links": {
+      "MAD-BCN": "https://www.momondo.es/vuelos/madrid/aeropuerto-de-barcelona-el-prat-bcn",
+      "BCN-MAD": "https://www.momondo.es/vuelos/aeropuerto-de-barcelona-el-prat-bcn/madrid"
+    }
   },
   {
     "id": "expedia",
@@ -198,14 +210,20 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "dated_public_references",
     "reputation": "not_reviewed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Referencias publicadas de ida y vuelta con fechas exactas.",
+    "route_links": {
+      "MAD-BCN": "https://es.trip.com/flights/airport-mad-bcn/",
+      "BCN-MAD": "https://es.trip.com/flights/airport-bcn-mad/"
+    }
   },
   {
     "id": "lastminute",
@@ -239,9 +257,9 @@
     "priority": 2,
     "route_coverage": "public_route_page",
     "reputation": "not_reviewed",
-    "access_review": "pending",
+    "access_review": "http_403_in_integration_check",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Páginas públicas de la ruta. Comprobar si el importe está condicionado a Prime. Extracción automática pendiente.",
+    "notes": "Consulta manual. El acceso directo devolvió HTTP 403 durante la prueba. Comprobar si el precio exige Prime.",
     "route_links": {
       "MAD-BCN": "https://www.edreams.es/vuelos/madrid-barcelona/MAD/BCN/",
       "BCN-MAD": "https://www.edreams.es/vuelos/barcelona-madrid/BCN/MAD/"
@@ -261,9 +279,9 @@
     "priority": 2,
     "route_coverage": "unverified",
     "reputation": "not_reviewed",
-    "access_review": "pending",
+    "access_review": "http_403_in_integration_check",
     "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "notes": "Consulta manual. El acceso directo devolvió HTTP 403 durante la prueba."
   },
   {
     "id": "rumbo",
@@ -274,14 +292,20 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "dated_public_references",
     "reputation": "not_reviewed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Métodos candidatos sujetos a inspección técnica y permisos; no garantiza MAD–BCN ni reputación."
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Tarjetas públicas con fechas y escalas. Cobertura según lo que publique la ruta.",
+    "route_links": {
+      "MAD-BCN": "https://www.rumbo.es/vuelos/r_madrid--barcelona",
+      "BCN-MAD": "https://www.rumbo.es/vuelos/r_barcelona--madrid"
+    }
   },
   {
     "id": "atrapalo",
@@ -656,14 +680,20 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "public_route_minimum",
     "reputation": "not_assessed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Mínimo de ruta. Sin verificación de fechas ni disponibilidad.",
+    "route_links": {
+      "MAD-BCN": "https://www.liligo.es/vuelos/rutas/madrid/barcelona",
+      "BCN-MAD": "https://www.liligo.es/vuelos/rutas/barcelona/madrid"
+    }
   },
   {
     "id": "wego",
@@ -674,14 +704,20 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "dated_historical_public_references",
     "reputation": "not_assessed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Candidata. Validar disponibilidad MAD–BCN, mercado español y acceso antes de integrar."
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-07",
+    "notes": "Referencias históricas con fechas exactas, sujetas a lo publicado en la página.",
+    "route_links": {
+      "MAD-BCN": "https://www.wego.com.es/vuelos/mad/bcn/vuelos-mas-baratos-desde-madrid-a-barcelona-649",
+      "BCN-MAD": "https://www.wego.com.es/vuelos/bcn/mad/vuelos-mas-baratos-desde-barcelona-649-a-madrid"
+    }
   },
   {
     "id": "idealo",

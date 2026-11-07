@@ -5,14 +5,14 @@ La búsqueda combina páginas públicas y archivos importados.
 | Sección | Ubicación | Estado |
 |---|---|---|
 | API | `src/scraperflights/connectors/api/` | Adaptadores históricos conservados fuera del comando de búsqueda |
-| Web HTTP | `src/scraperflights/connectors/web/` | Vueling, Iberia, Air Europa, Kiwi.com y Trabber por HTTP |
+| Web HTTP | `src/scraperflights/connectors/web/` | Vueling, Iberia, Air Europa, Kiwi.com, Trabber, Trip.com, Rumbo, Liligo, KAYAK, momondo y Wego por HTTP |
 | Navegador | `src/scraperflights/connectors/browser/` | Calendario público de Vueling renderizado con Chromium |
 | Feeds/archivos | `src/scraperflights/connectors/feeds/` | Importador local JSON y CSV. Se aporta el archivo del proveedor |
 | Contrato común | `src/scraperflights/connectors/base.py` | ready, search y refresh; compatible con los adaptadores API |
 
 El catálogo distribuido contiene 47 fuentes. Consulta las categorías y el estado con `scraperflights sources`. Las marcas candidatas pueden compartir inventario o grupo y requieren comprobar cobertura de la ruta, condiciones de acceso y reputación.
 
-Iberia, Air Europa, Kiwi.com y Trabber se leen desde sus páginas públicas. Iberia y Air Europa se probaron con referencias fechadas de ida y vuelta. Kiwi.com publica una selección dinámica de fechas. El precio mínimo de Trabber es de ruta y se mantiene fuera del mínimo fechado.
+Iberia, Air Europa, Kiwi.com y Trabber se leen desde sus páginas públicas. Iberia y Air Europa se probaron con referencias fechadas de ida y vuelta. Kiwi.com publica una selección dinámica de fechas. Trip.com empareja las dos piernas usando el mismo enlace y toma el precio del paquete una sola vez. Rumbo lee fechas y escalas de las tarjetas públicas. Wego aporta referencias históricas fechadas en EUR. Los mínimos de Trabber, KAYAK, momondo y Liligo se mantienen fuera del mínimo fechado. KAYAK y momondo pueden compartir datos. eDreams y Opodo devolvieron HTTP 403 en la comprobación de acceso y conservan enlaces manuales.
 
 ## Ejecutar las nuevas fuentes
 
@@ -24,7 +24,7 @@ scraperflights search --date 2026-12-10 --providers vueling-browser
 scraperflights search --date 2026-12-10 --providers vueling-web --feed data/provider.json
 ```
 
-Sustituye la fecha por una futura. La búsqueda predeterminada usa las cinco fuentes HTTP. Selecciona un solo método de Vueling por búsqueda. Chromium cuenta como una navegación para el presupuesto y puede cargar recursos secundarios. Si la página bloquea el acceso o cambia su estructura, el informe registra el error. Cada modo lee el calendario público. La automatización de formularios de reserva queda pendiente.
+Sustituye la fecha por una futura. La búsqueda predeterminada usa las once fuentes HTTP. Selecciona un solo método de Vueling por búsqueda. Chromium cuenta como una navegación para el presupuesto y puede cargar recursos secundarios. Si la página bloquea el acceso o cambia su estructura, el informe registra el error. Cada modo lee el calendario público. La automatización de formularios de reserva queda pendiente.
 
 `supplemental_prices` recoge referencias del mes (`indicative`) y capturas importadas (`imported`). Estas observaciones se guardan también en el histórico. Para ver la referencia publicada más barata con fechas coincidentes se usa `lowest_dated_reference`. El calendario Vueling solo admite ida, un adulto y sin maletas requeridas. Una búsqueda con otras condiciones registra `unsupported_profile`.
 
