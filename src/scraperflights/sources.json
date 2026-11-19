@@ -949,5 +949,283 @@
     "access_review": "pending",
     "discovery_verified_at": "2026-11-07",
     "notes": "Deriva las reservas a Iberia. Puede compartir inventario."
+  },
+  {
+    "id": "aeromexico",
+    "name": "Aeroméxico",
+    "category": "airline",
+    "url": "https://www.aeromexico.com/es_es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
+    "priority": 1,
+    "route_coverage": "dated_public_references",
+    "reputation": "not_assessed",
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Referencias EUR con fechas exactas. Acceso variable por ruta.",
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ],
+    "route_links": {
+      "BCN-MTY": "https://www.aeromexico.com/es_es/vuelos-desde-barcelona-a-monterrey",
+      "MAD-MTY": "https://www.aeromexico.com/es_es/vuelos-desde-madrid-a-monterrey",
+      "MTY-BCN": "https://www.aeromexico.com/es_es/vuelos-desde-monterrey-a-barcelona",
+      "MTY-MAD": "https://www.aeromexico.com/es_es/vuelos-desde-monterrey-a-madrid"
+    }
+  },
+  {
+    "id": "lufthansa",
+    "name": "Lufthansa",
+    "category": "airline",
+    "url": "https://www.lufthansa.com/lhg/es/es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
+    "priority": 2,
+    "route_coverage": "public_route_minimum",
+    "reputation": "not_assessed",
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Mínimo de ruta en EUR. Disponibilidad de compra sin verificar.",
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ],
+    "route_links": {
+      "BCN-MTY": "https://www.lufthansa.com/lhg/es/es/o-d/cy-cy/barcelona-monterrey",
+      "MAD-MTY": "https://www.lufthansa.com/lhg/es/es/o-d/cy-cy/madrid-monterrey",
+      "MTY-BCN": "https://www.lufthansa.com/lhg/es/es/o-d/cy-cy/monterrey-barcelona",
+      "MTY-MAD": "https://www.lufthansa.com/lhg/es/es/o-d/cy-cy/monterrey-madrid"
+    }
+  },
+  {
+    "id": "air_france",
+    "name": "Air France",
+    "category": "airline",
+    "url": "https://wwws.airfrance.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "HTTP 403 durante la comprobación. Consulta manual."
+  },
+  {
+    "id": "klm",
+    "name": "KLM",
+    "category": "airline",
+    "url": "https://www.klm.es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "HTTP 403 durante la comprobación. Consulta manual."
+  },
+  {
+    "id": "united",
+    "name": "United Airlines",
+    "category": "airline",
+    "url": "https://www.united.com/es/es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "La página probada carecía de precios estructurados extraíbles. Consulta manual."
+  },
+  {
+    "id": "american_airlines",
+    "name": "American Airlines",
+    "category": "airline",
+    "url": "https://www.aa.com/es-es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "HTTP 403 durante la comprobación. Consulta manual."
+  },
+  {
+    "id": "air_canada",
+    "name": "Air Canada",
+    "category": "airline",
+    "url": "https://www.aircanada.com/es-es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "HTTP 403 durante la comprobación. Consulta manual."
+  },
+  {
+    "id": "delta",
+    "name": "Delta Air Lines",
+    "category": "airline",
+    "url": "https://es.delta.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata para comparar itinerarios con conexión."
+  },
+  {
+    "id": "swiss",
+    "name": "SWISS",
+    "category": "airline",
+    "url": "https://www.swiss.com/lhg/es/es/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Candidata para comparar itinerarios con conexión."
+  },
+  {
+    "id": "despegar_mx",
+    "name": "Despegar México",
+    "category": "agency",
+    "url": "https://www.despegar.com.mx/vuelos",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 1,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "http_403_in_integration_check",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Portal mexicano. Revisar moneda MXN y condiciones antes de comparar. HTTP 403 durante la comprobación de acceso."
+  },
+  {
+    "id": "bestday",
+    "name": "Best Day",
+    "category": "agency",
+    "url": "https://www.bestday.com.mx/vuelos",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "http_403_in_integration_check",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Portal mexicano. Revisar moneda, promociones y entidad que emite. HTTP 403 durante la comprobación de acceso."
+  },
+  {
+    "id": "pricetravel",
+    "name": "PriceTravel",
+    "category": "agency",
+    "url": "https://www.pricetravel.com/es/vuelos",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_reviewed",
+    "access_review": "public_search_page_only",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Portal mexicano. Revisar moneda y condiciones. Página general accesible. Extracción de resultados de la ruta pendiente."
+  },
+  {
+    "id": "viva",
+    "name": "Viva",
+    "category": "airline",
+    "url": "https://www.vivaaerobus.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Posibles tramos internos en México. Billetes separados requieren evaluar conexión."
+  },
+  {
+    "id": "volaris",
+    "name": "Volaris",
+    "category": "airline",
+    "url": "https://www.volaris.com/",
+    "methods": [
+      "web",
+      "browser"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "priority": 2,
+    "route_coverage": "unverified",
+    "reputation": "not_assessed",
+    "access_review": "pending",
+    "discovery_verified_at": null,
+    "notes": "Posibles tramos internos en México. Billetes separados requieren evaluar conexión."
   }
 ]

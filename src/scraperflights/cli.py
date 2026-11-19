@@ -15,11 +15,12 @@ from .connectors.web.vueling import VuelingWeb
 from .connectors.browser.vueling import VuelingBrowser
 from .connectors.feeds.file import FileFeed
 
+from .connectors.web.mexico import AeromexicoWeb, LufthansaWeb
 from .connectors.web.agency import TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb
 from .connectors.web.routes import IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb
 
 WEB_CONNECTORS = (VuelingWeb, IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb,
-                  TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb, VuelingBrowser)
+                  TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb, AeromexicoWeb, LufthansaWeb, VuelingBrowser)
 DEFAULT_WEB_PROVIDERS = tuple(c.name for c in WEB_CONNECTORS if c is not VuelingBrowser)
 CONNECTORS = (Amadeus, Skyscanner, *WEB_CONNECTORS)
 

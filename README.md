@@ -19,6 +19,14 @@ Para buscar desde el visor, selecciona la ruta, elige **Solo ida** o **Ida y vue
 
 El visor se ejecuta en tu equipo. Cierra CMD o pulsa Ctrl+C para detenerlo.
 
+## Fuentes para México
+
+Aeroméxico y Lufthansa se consultan automáticamente en las rutas de Monterrey. Aeroméxico usa el mercado España y filtra EUR. Su conector separa las fechas exactas de los importes generales. Lufthansa aporta un mínimo de ruta. Ambos pueden responder sin ofertas o con acceso restringido según la página.
+
+El catálogo incorpora también Air France, KLM, United, American Airlines, Air Canada, Delta, SWISS, Despegar México, Best Day, PriceTravel, Viva y Volaris como candidatas. El visor indica cuáles se consultan automáticamente. Las webs mexicanas pueden mostrar MXN y promociones locales. Esos importes requieren una comparación de moneda y condiciones antes de sumarlos a un presupuesto en euros.
+
+Pruebas de integración del 19 de noviembre de 2026: Aeroméxico BCN→MTY y Lufthansa BCN→MTY devolvieron referencias. Aeroméxico MAD→MTY, MTY→BCN, MTY→MAD y Lufthansa MAD→MTY devolvieron HTTP 403 desde este entorno. En una comprobación posterior, Aeroméxico MAD→MTY respondió sin coincidencias y Lufthansa MAD→MTY devolvió una página sin precios extraíbles. Las rutas permanecen disponibles y cada informe registra lo que devolvió la consulta.
+
 ## Rutas con Monterrey
 
 Selecciona origen y destino en el visor, o usa `--destination` en CMD:
@@ -53,6 +61,8 @@ Sustituye las fechas por fechas futuras. `--flex-days` amplía la búsqueda alre
 | Iberia | Tarjetas de precios anunciados que coinciden con las fechas y el trayecto solicitados. |
 | Air Europa | Tarifas de turista fechadas incluidas en los datos públicos de la página. |
 | Kiwi.com | Precios de ida fechados en los datos estructurados de la página. Se omiten resultados con escalas contradictorias cuando se piden directos. |
+| Aeroméxico | Tarifas publicadas en EUR con coincidencia de ida y regreso para MTY. |
+| Lufthansa | Mínimo de ruta en EUR, sujeto al acceso a cada página. |
 | Trip.com | Referencias publicadas de ida y vuelta con coincidencia exacta de las fechas. |
 | Wego | Precios históricos publicados con coincidencia de fechas. |
 | Rumbo | Tarjetas de ofertas con fechas, horarios y escalas, si están publicadas. |
@@ -63,7 +73,7 @@ Las fuentes HTML publican una selección de precios para un adulto en EUR. Si se
 
 `lowest_dated_reference` muestra la referencia fechada más barata de las extraídas. `supplemental_prices` recoge también mínimos mensuales, mínimos de ruta, referencias históricas e importaciones. Si una fuente responde sin coincidencias, el informe puede mostrar cero referencias. Eso indica qué publicó la página en esa captura. `winner` queda vacío mientras falten disponibilidad, equipaje o costes de compra confirmados.
 
-La búsqueda automática utiliza **11 webs** por defecto. El catálogo tiene **47 fuentes**, incluidas 29 agencias, 12 metabuscadores, 5 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
+La búsqueda automática utiliza **13 webs** por defecto. El catálogo tiene **61 fuentes**, incluidas 32 agencias, 12 metabuscadores, 16 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
 
 ### Comparar precios por dispositivo, idioma o sesión
 
