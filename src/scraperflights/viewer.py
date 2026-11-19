@@ -14,14 +14,17 @@ from urllib.parse import parse_qs, urlsplit
 from .analysis.service import handle as handle_analysis
 from .catalog import sources
 from .airports import AIRPORTS, destination_for, direct_for
-from .cli import MODES, providers_for, export, run_search
+from .cli import MODES, WEB_CONNECTORS, providers_for, export, run_search
 from .core import Search, Store
+from .profiles import DEVICES
+from .experiment import compare_devices
 
 MAX_REPORT = 32 * 1024 * 1024
 REPORT_TYPES = {'.json': 'application/json', '.csv': 'text/csv'}
 ASSETS = {'/': ('index.html', 'text/html'), '/app.js': ('app.js', 'text/javascript'),
           '/style.css': ('style.css', 'text/css'),
-          '/analysis.js': ('analysis.js', 'text/javascript')}
+          '/analysis.js': ('analysis.js', 'text/javascript'),
+          '/devices.js': ('devices.js', 'text/javascript')}
 
 
 class DashboardHandler(BaseHTTPRequestHandler):
@@ -58,6 +61,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
             name, content_type = ASSETS[url.path]
             asset = files('scraperflights').joinpath('dashboard', name)
             self.send_data(asset.read_bytes(), content_type)
+        elif url.path == '/devices':
+            self.send_json({'devices': DEVICES, 'providers': [c.name for c in WEB_CONNECTORS]})
         elif url.path == '/catalog':
             self.send_json(sources())
         elif url.path == '/reports':
@@ -97,6 +102,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.valid_host() or self.headers.get('Origin') != f"http://{self.headers.get('Host')}":
             self.send_json({'error': 'Abre el visor desde su dirección local.'}, 403)
+            return
+        if self.path == '/compare-devices':
+            self.compare_devices_request()
             return
         if self.path.startswith('/analysis/'):
             if self.headers.get_content_type() != 'application/json':
@@ -166,6 +174,49 @@ class DashboardHandler(BaseHTTPRequestHandler):
         finally:
             self.search_lock.release()
         self.send_json({'name': name})
+
+    def compare_devices_request(self):
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            if self.headers.get_content_type() != 'application/json' or not 0 < length <= 8192:
+                raise ValueError('Petición JSON inválida.')
+            data = json.loads(self.rfile.read(length))
+            if not isinstance(data, dict):
+                raise ValueError('Petición inválida.')
+            devices, providers = data.get('devices'), data.get('providers')
+            if not isinstance(devices, list) or not all(isinstance(v, str) and v in DEVICES for v in devices):
+                raise ValueError('Dispositivos inválidos.')
+            allowed = {c.name for c in WEB_CONNECTORS}
+            if not isinstance(providers, list) or not 1 <= len(providers) <= 4 or any(not isinstance(v, str) or v not in allowed for v in providers):
+                raise ValueError('Elige entre 1 y 4 fuentes web.')
+            rounds, baseline = data.get('rounds', 2), data.get('baseline', 'desktop')
+            if type(rounds) is not int or not 1 <= rounds <= 3 or not isinstance(baseline, str) or baseline not in DEVICES or not set(devices) - {baseline}:
+                raise ValueError('Elige 1–3 rondas y un dispositivo distinto del control.')
+            direct = data.get('direct_only', False)
+            if type(direct) is not bool or not isinstance(data.get('departure'), str):
+                raise ValueError('Parámetros de búsqueda inválidos.')
+            if data.get('return_date') is not None and not isinstance(data['return_date'], str):
+                raise ValueError('Regreso inválido.')
+            search = Search(data.get('origin'), data.get('destination'), data['departure'],
+                            data.get('return_date') or None,
+                            direct=direct_for(data.get('origin'), data.get('destination'), direct_only=direct))
+        except (ValueError, TypeError, UnicodeError) as exc:
+            self.send_json({'error': str(exc)}, 400)
+            return
+        if self.search_lock is None or not self.search_lock.acquire(blocking=False):
+            self.send_json({'error': 'Ya hay una búsqueda o comparación en curso.'}, 409)
+            return
+        try:
+            report = compare_devices(search, providers, devices, rounds, run_search, baseline)
+            self.directory.mkdir(parents=True, exist_ok=True)
+            name = 'comparison-' + report['id'] + '.json'
+            (self.directory / name).write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+        except OSError:
+            self.send_json({'error': 'No se pudo guardar la comparación.'}, 500)
+            return
+        finally:
+            self.search_lock.release()
+        self.send_json({'name': name, 'report': report})
 
 
 def main(argv=None):

@@ -240,25 +240,35 @@ function comparisonReport(parent, report, name) {
   const profiles = section(parent, 'Perfiles de la prueba', 'La diferencia se calcula como B menos A.');
   profiles.append(table(['Perfil', 'Dispositivo', 'Idioma', 'Sesión'],
     Object.entries(report.profiles || {}).map(([key, row]) =>
-      [key.toUpperCase(), label(row.device), row.locale, label(row.session)])));
+      [key.toUpperCase(), row.label || label(row.device), row.locale, label(row.session)])));
   const rounds = section(parent, 'Resultados por ronda',
     'Un cambio de mínimo puede corresponder a una oferta distinta. La comparación no prueba qué causó el cambio.');
   for (const pair of pairs) {
     const block = el('article', null, 'pair');
-    block.append(el('h3', 'Ronda ' + pair.round + ' · ' + pair.provider),
-      el('p', 'Orden ' + asList(pair.order).join(' → ').toUpperCase() + ' · ' + label(pair.status), 'subtle'));
+    block.append(el('h3', 'Ronda ' + pair.round + ' · ' + pair.provider + (pair.target ? ' · ' + pair.baseline + ' → ' + pair.target : '')),
+      el('p', 'Orden ' + asList(pair.order).map(key => key === '__control__' ? 'Control repetido' : key.toUpperCase()).join(' → ') + ' · ' + label(pair.status), 'subtle'));
     const comparisons = asList(pair.comparisons);
-    if (comparisons.length) block.append(table(['Alcance', 'Mínimo A', 'Mínimo B', 'Diferencia', 'Resultado', 'Intervalo', 'Detalle'],
+    if (comparisons.length) block.append(table(['Alcance', 'Mínimo A (control)', 'Mínimo B', 'Diferencia', '% B vs. A', 'Resultado', 'Intervalo', 'Detalle'],
       comparisons.map(c => [label(c.scope), price(c.a_minimum?.amount, c.currency),
-        price(c.b_minimum?.amount, c.currency), price(c.delta_b_minus_a, c.currency), label(c.status),
+        price(c.b_minimum?.amount, c.currency), price(c.delta_b_minus_a, c.currency),
+        c.change_pct == null ? '—' : Number(c.change_pct).toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' %', label(c.status),
         c.observation_gap_seconds == null ? '—' : Number(c.observation_gap_seconds).toFixed(1) + ' s',
         details('Ver observaciones', c)])));
+    if (pair.control_comparisons) {
+      block.append(el('h4', 'Repetición del control'));
+      block.append(table(['Alcance', 'Diferencia entre controles', '% entre controles', 'Intervalo'],
+        asList(pair.control_comparisons).map(c => [label(c.scope), price(c.delta_b_minus_a, c.currency),
+          c.change_pct == null ? '—' : Number(c.change_pct).toLocaleString('es-ES', {maximumFractionDigits:2}) + ' %',
+          c.observation_gap_seconds == null ? '—' : Number(c.observation_gap_seconds).toFixed(1) + ' s'])));
+      block.append(details('Detalle de la repetición del control', pair.control_comparisons));
+    }
     const pairSources = Object.entries(pair.runs || {}).flatMap(([key, run]) =>
       asList(run.sources).map(row => key.toUpperCase() + ' · ' + label(row.status) + (row.error ? ' · ' + row.error : '')));
     if (pairSources.length) block.append(el('p', pairSources.join(' / '), 'subtle'));
     block.append(details('Consultas originales', pair.runs || {}));
     rounds.append(block);
   }
+  if (report.notice) parent.append(el('p', report.notice, 'subtle'));
   section(parent, 'Datos del experimento').append(details('Informe JSON completo', report));
 }
 

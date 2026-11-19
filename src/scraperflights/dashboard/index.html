@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="/style.css">
 <script src="/app.js" defer></script>
 <script src="/analysis.js" defer></script>
+<script src="/devices.js" defer></script>
 </head>
 <body>
 <header class="top"><div class="wrap top-inner"><a class="brand" href="/"><span class="logo" aria-hidden="true">↗</span> scraperflights</a><span class="local"><i></i> Visor local</span></div></header>
@@ -35,6 +36,21 @@
 <details class="panel section catalog">
 <summary>Catálogo de compañías y agencias</summary>
 <div id="catalog-results"></div>
+</details>
+<details class="panel section" id="devices-section">
+<summary>Laboratorio de dispositivos y marcas</summary>
+<p>Usa origen, destino y fechas de «Nueva búsqueda». Compara señales sintéticas con la misma conexión, euros, un adulto y sesiones nuevas. No cambia tu IP ni reproduce un dispositivo físico completo.</p>
+<p class="subtle">Las gamas son hipótesis de muestreo: no hay una regla demostrada de «marca cara = vuelo más caro». Safari en Chromium es una simulación parcial; los modelos Android declarados pueden diferir de los identificadores reducidos de navegadores reales.</p>
+<form id="devices-form">
+<div class="analysis-grid"><label>Perfil de control<select id="device-baseline"></select></label><label>Rondas<select id="device-rounds"><option>1</option><option selected>2</option><option>3</option></select></label></div>
+<fieldset class="mode-picker" id="device-options"><legend>Dispositivos a comparar</legend></fieldset>
+<fieldset class="mode-picker" id="device-providers"><legend>Fuentes web (máximo 4)</legend></fieldset>
+<p id="device-estimate" class="subtle"></p>
+<button class="primary" id="device-run" type="submit">Comparar dispositivos</button>
+</form>
+<p id="device-status" role="status">Cargando perfiles…</p>
+<details><summary>Fundamento y límites del experimento</summary><p>Hannak et al., IMC 2014, estudiaron personalización por navegador y sistema operativo en comercios, hoteles y alquiler de coches. No prueba un efecto de marca sobre billetes de avión actuales. Se añade una segunda consulta de control y se alterna el orden para observar ruido temporal. Comparamos mínimos publicados; pueden ser billetes distintos.</p><a href="https://personalization.ccs.neu.edu/Projects/PriceDiscrimination/" target="_blank" rel="noopener">Estudio y metodología originales (2014)</a></details>
+<div id="device-results"></div>
 </details>
 <details class="panel section" id="analysis-section">
 <summary>Análisis histórico y variaciones porcentuales</summary>

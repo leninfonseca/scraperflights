@@ -1,6 +1,12 @@
 'use strict';
 
 (() => {
+  function profileName(value) {
+    if (!value || value === 'unknown') return '';
+    try { const data = JSON.parse(value); return data.label || data.device || value; }
+    catch { return value; }
+  }
+
   let records = [];
   let pending = [];
   let revision = 0;
@@ -216,7 +222,7 @@
       const query=filter.value.toLowerCase();
       result.groups.forEach((group,index)=>{
         const text=[group.origin+' → '+group.destination, group.departure,group.return_date,
-          label(group.transport_mode),group.seller,label(group.scope),label(group.journey_leg),group.count+' observaciones'].filter(Boolean).join(' · ');
+          label(group.transport_mode),group.seller,label(group.scope),label(group.journey_leg),profileName(group.profile),group.count+' observaciones'].filter(Boolean).join(' · ');
         if(text.toLowerCase().includes(query))select.append(new Option(text,index));
       });
       show();

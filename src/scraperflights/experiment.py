@@ -4,7 +4,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from .core import money, now
-from .profiles import WebProfile
+from .profiles import WebProfile, DEVICES
 
 FACTORS = {
     'device': ('desktop', 'mobile'),
@@ -43,6 +43,7 @@ def compare_runs(a, b):
             'a_observation_count': len(options_a), 'b_observation_count': len(options_b),
             'status': ('unpaired' if delta is None else 'same_minimum' if delta == 0 else 'different_minimum'),
             'delta_b_minus_a': str(delta) if delta is not None else None,
+            'change_pct': float(delta / money(first['amount']) * 100) if delta is not None and money(first['amount']) else None,
             'observation_gap_seconds': gap,
         })
     return comparisons
@@ -70,3 +71,41 @@ def compare_profiles(search, providers, factor, rounds, run_search):
                          for label, profile in profiles.items()},
             'pairs': pairs,
             'notice': 'Compares public minima by scope. Matching dates do not prove identical flights, fares, or checkout prices. Differences do not establish causation.'}
+
+
+def compare_devices(search, providers, devices, rounds, run_search, baseline='desktop'):
+    """Repeated baseline plus a second control; rotate target order between rounds."""
+    devices = list(dict.fromkeys(devices))
+    providers = list(dict.fromkeys(providers))
+    if baseline not in DEVICES or not devices or any(key not in DEVICES for key in devices):
+        raise ValueError('Selecciona dispositivos válidos.')
+    if not 1 <= rounds <= 3 or not 1 <= len(providers) <= 4:
+        raise ValueError('Admite 1–3 rondas y 1–4 fuentes por experimento.')
+    targets = [key for key in devices if key != baseline]
+    if not targets:
+        raise ValueError('Selecciona al menos un dispositivo distinto del control.')
+    started = now()
+    profiles = {key: WebProfile(device=key) for key in [baseline] + targets}
+    pairs = []
+    for index in range(rounds):
+        sequence = [baseline, *targets, '__control__']
+        if index % 2:
+            sequence.reverse()
+        for provider in providers:
+            runs = {}
+            for key in sequence:
+                runs[key] = run_search(search, [provider], {}, budget=2,
+                                       profile=profiles[baseline if key == '__control__' else key])
+            control = compare_runs(runs[baseline], runs['__control__'])
+            for target in targets:
+                comparisons = compare_runs(runs[baseline], runs[target])
+                pairs.append({'round': index + 1, 'provider': provider, 'baseline': baseline,
+                    'target': target, 'order': sequence, 'control_comparisons': control,
+                    'control_run': runs['__control__'],
+                    'runs': {baseline: runs[baseline], target: runs[target]}, 'comparisons': comparisons,
+                    'status': 'paired' if any(c['delta_b_minus_a'] is not None for c in comparisons)
+                              else 'no_comparable_observations'})
+    return {'id': str(uuid4()), 'factor': 'device', 'search': asdict(search),
+            'started_at': started, 'finished_at': now(), 'baseline': baseline,
+            'profiles': {key: profile.metadata() for key, profile in profiles.items()}, 'pairs': pairs,
+            'notice': 'Señales de dispositivo sintéticas, misma conexión y sesiones nuevas. La gama es una hipótesis. Revisa la diferencia entre controles: los mínimos pueden corresponder a billetes distintos y no prueban un efecto causal.'}

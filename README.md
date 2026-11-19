@@ -36,6 +36,10 @@ En el visor, abre **Análisis histórico y variaciones porcentuales**. Puedes co
 
 Los CSV nuevos incorporan ruta, fechas, viajeros, equipaje y tipo de referencia para facilitar el análisis. Se conserva la lectura de informes antiguos. [Formato de importación y fórmulas](docs/analysis.md).
 
+## Simular dispositivos y marcas
+
+Abre **Laboratorio de dispositivos y marcas** en el mismo visor. Elige ruta y fechas arriba, perfiles de Apple, Samsung, Xiaomi o Google, un control y fuentes web. Guarda rondas, diferencias porcentuales y una repetición del control para observar ruido temporal. Los JSON se incorporan al análisis histórico por perfil. Son señales sintéticas; no cambian IP ni demuestran un efecto causal de marca. [Metodología, estudio y uso](docs/devices.md).
+
 ## Documentación
 
 - [Fuentes e integración](docs/sources.md)
