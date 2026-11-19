@@ -9,6 +9,9 @@ const formatDate = value => {
   return new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Madrid' }).format(date);
 };
 const labels = {
+  flight: 'Avión', train: 'Tren', bus: 'Autobús', carpool: 'Coche compartido',
+  outbound: 'Ida', return: 'Regreso', unspecified: 'Sin tramo confirmado',
+  indicative_leg_reference: 'Precio publicado de un tramo y fecha',
   indicative_dated_reference: 'Coincide con tus fechas', indicative_monthly_minimum: 'Mínimo del mes',
   indicative_historical_dated_reference: 'Precio histórico para tus fechas',
   indicative_route_minimum: 'Mínimo de la ruta', imported_snapshot: 'Precio importado',
@@ -123,18 +126,23 @@ function offers(parent, rows, title = 'Precios y ofertas', subtitle) {
   scope.setAttribute('aria-label', 'Filtrar tipo de precio');
   scope.append(new Option('Todos los tipos', ''));
   for (const value of new Set(rows.map(scopeOf))) scope.append(new Option(label(value), value));
+  const mode = el('select');
+  mode.setAttribute('aria-label', 'Filtrar medio de transporte');
+  mode.append(new Option('Todos los transportes', ''));
+  for (const value of new Set(rows.map(row => row.transport_mode || 'flight')))
+    mode.append(new Option(label(value), value));
   const sort = el('select');
   sort.setAttribute('aria-label', 'Orden de precios');
   sort.append(new Option('Orden del informe', ''), new Option('Menor precio primero', 'asc'),
     new Option('Mayor precio primero', 'desc'));
   const count = el('span', '', 'hint');
   count.setAttribute('aria-live', 'polite');
-  toolbar.append(filter, scope, sort, count);
+  toolbar.append(filter, mode, scope, sort, count);
   const results = el('div');
   node.append(toolbar, results);
   function render() {
     const query = filter.value.trim().toLocaleLowerCase('es');
-    const visible = rows.filter(row => (!scope.value || scopeOf(row) === scope.value) &&
+    const visible = rows.filter(row => (!mode.value || (row.transport_mode || 'flight') === mode.value) && (!scope.value || scopeOf(row) === scope.value) &&
       [row.seller, row.provider].some(v => String(v || '').toLocaleLowerCase('es').includes(query)));
     if (sort.value) visible.sort((a, b) => {
       const left = a.amount == null || a.amount === '' ? NaN : Number(a.amount);
@@ -145,17 +153,18 @@ function offers(parent, rows, title = 'Precios y ofertas', subtitle) {
     });
     count.textContent = visible.length + ' de ' + rows.length;
     results.replaceChildren(visible.length ? table(
-      ['Vendedor / fuente', 'Referencia', 'Total de compra', 'Tipo', 'Observado', 'Enlace', 'Detalle'],
+      ['Transporte', 'Tramo', 'Vendedor / fuente', 'Referencia', 'Total de compra', 'Tipo', 'Observado', 'Enlace', 'Detalle'],
       visible.map(row => {
         const seller = el('div', row.seller || row.provider || '—');
         if (row.provider && row.provider !== row.seller) seller.append(el('div', row.provider, 'hint'));
         const info = details('Ver datos', row);
+        info.insertBefore(el('p', 'Tramo · ' + label(row.journey_leg), 'hint'), info.lastChild);
         for (const reason of offerReasons(row)) info.insertBefore(el('p', label(reason), 'hint'), info.lastChild);
         if (asList(row.segments).length) {
           info.insertBefore(el('p', row.segments.map(segment =>
             [segment.origin, segment.destination, segment.departure].filter(Boolean).join(' · ')).join(' / ')), info.lastChild);
         }
-        return [seller, el('span', price(row.amount, row.currency), 'price'),
+        return [label(row.transport_mode || 'flight'), label(row.journey_leg), seller, el('span', price(row.amount, row.currency), 'price'),
           row.total ? price(row.total, row.currency) : 'Sin confirmar', el('span', label(scopeOf(row)), 'tag'),
           formatDate(row.observed_at), external(row.link), info];
       })
@@ -164,6 +173,7 @@ function offers(parent, rows, title = 'Precios y ofertas', subtitle) {
   filter.addEventListener('input', render);
   scope.addEventListener('change', render);
   sort.addEventListener('change', render);
+  mode.addEventListener('change', render);
   render();
 }
 function sources(parent, rows) {
@@ -198,13 +208,19 @@ function searchReport(parent, report, name) {
     .sort((a, b) => Number(a.amount) - Number(b.amount))[0];
   const winner = report.winner;
   stats(parent, [
-    ['Menor referencia para tus fechas', price(dated?.amount, dated?.currency), dated?.seller || 'Sin referencia para esas fechas'],
+    ['Menor referencia de avión para tus fechas', price(dated?.amount, dated?.currency), dated?.seller || 'Sin referencia para esas fechas'],
     ['Total de compra verificado', price(winner?.total, winner?.currency), winner?.seller || 'Sin total confirmado'],
     ['Fuentes consultadas', asList(report.sources).length, formatDate(report.finished_at)],
     ['Observaciones registradas', asList(report.observations).length, 'Incluye datos orientativos'],
   ]);
   offers(parent, rows,
     'Precios y ofertas', 'Filtra por tipo para separar las coincidencias de los mínimos orientativos.');
+  if (asList(report.transport_links).length) {
+    const links = section(parent, 'Transporte Barcelona ↔ Madrid',
+      'Consulta condiciones, estaciones y recogida. Si continúas en avión, calcula el traslado hasta Barajas y el margen de conexión.');
+    links.append(table(['Empresa', 'Medio', 'Consulta manual'], report.transport_links.map(row =>
+      [row.name, label(row.transport_mode), external(row.url)])));
+  }
   sources(parent, asList(report.sources));
   const audit = section(parent, 'Historial de la ejecución', 'Las referencias pueden cambiar y el total de compra depende de la disponibilidad y las condiciones del vendedor.');
   audit.append(details('Parámetros de búsqueda', report.search || {}),
@@ -369,6 +385,10 @@ searchForm.addEventListener('submit', async event => {
     $('search-status').textContent = 'Elige dos aeropuertos diferentes.';
     return;
   }
+  if (!values.getAll('modes').length) {
+    $('search-status').textContent = 'Selecciona al menos un medio de transporte.';
+    return;
+  }
   const status = $('search-status');
   searchButton.disabled = true;
   status.textContent = 'Consultando las webs… Puede tardar unos segundos.';
@@ -376,7 +396,7 @@ searchForm.addEventListener('submit', async event => {
     const response = await fetch('/search', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({origin: values.get('origin'), destination: values.get('destination'),
-                            direct_only: values.get('direct_only') === 'on', departure: values.get('departure'),
+                            modes: values.getAll('modes'), direct_only: values.get('direct_only') === 'on', departure: values.get('departure'),
                             return_date: values.get('return_date') || null}),
     });
     const result = await response.json();
@@ -418,7 +438,7 @@ catalog.addEventListener('toggle', async () => {
     const response = await fetch('/catalog');
     if (!response.ok) throw new Error('Error al cargar el catálogo');
     const rows = await response.json();
-    const categories = {agency: 'Agencia', airline: 'Aerolínea', metasearch: 'Comparador', distribution: 'Distribuidor'};
+    const categories = {rail: 'Tren', coach: 'Autobús', rideshare: 'Coche compartido', multimodal: 'Comparador de transporte', agency: 'Agencia', airline: 'Aerolínea', metasearch: 'Comparador', distribution: 'Distribuidor'};
     container.replaceChildren(el('p', rows.length + ' fuentes. Las candidatas están disponibles como enlaces para consulta manual.', 'subtle'),
       table(['Empresa', 'Tipo', 'Consulta en el visor', 'Cobertura', 'Enlace'], rows.map(row => [
         row.name, categories[row.category], asList(row.implemented_methods).includes('web') ? 'Integrada' : row.status === 'candidate' ? 'Candidata' : 'Adaptador histórico',

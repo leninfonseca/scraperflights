@@ -10,7 +10,7 @@ La búsqueda combina páginas públicas y archivos importados.
 | Feeds/archivos | `src/scraperflights/connectors/feeds/` | Importador local JSON y CSV. Se aporta el archivo del proveedor |
 | Contrato común | `src/scraperflights/connectors/base.py` | ready, search y refresh; compatible con los adaptadores API |
 
-El catálogo distribuido contiene 61 fuentes. Consulta las categorías y el estado con `scraperflights sources`. Las marcas candidatas pueden compartir inventario o grupo y requieren comprobar cobertura de la ruta, condiciones de acceso y reputación.
+El catálogo distribuido contiene 68 fuentes. Consulta las categorías y el estado con `scraperflights sources`. Las marcas candidatas pueden compartir inventario o grupo y requieren comprobar cobertura de la ruta, condiciones de acceso y reputación.
 
 Iberia, Air Europa, Kiwi.com y Trabber se leen desde sus páginas públicas. Iberia y Air Europa se probaron con referencias fechadas de ida y vuelta. Kiwi.com publica una selección dinámica de fechas. Trip.com empareja las dos piernas usando el mismo enlace y toma el precio del paquete una sola vez. Rumbo lee fechas y escalas de las tarjetas públicas. Wego aporta referencias históricas fechadas en EUR. Los mínimos de Trabber, KAYAK, momondo y Liligo se mantienen fuera del mínimo fechado. KAYAK y momondo pueden compartir datos. eDreams y Opodo devolvieron HTTP 403 en la comprobación de acceso y conservan enlaces manuales.
 
@@ -77,3 +77,9 @@ BCN↔MTY y MAD↔MTY están disponibles en consola y visor con escalas por defe
 `aeromexico-web` reutiliza la extracción de tarifas públicas fechadas y exige EUR, cabina económica y coincidencia de salida y regreso. `lufthansa-web` extrae el mínimo anunciado para la ruta de un producto estructurado y lo clasifica como orientativo de ruta. Ambos conectores admiten las cuatro rutas entre MTY y BCN/MAD. Se consultan por defecto y aparecen en `compare`.
 
 Se probaron las cuatro rutas Aeroméxico y las salidas de BCN/MAD en Lufthansa. BCN→MTY devolvió datos en ambas aerolíneas. Las otras rutas Aeroméxico devolvieron inicialmente HTTP 403. En la consulta posterior, MAD→MTY respondió sin coincidencias. Lufthansa MAD→MTY devolvió inicialmente HTTP 403 y después una página sin precios extraíbles. Los tests comprueban fechas, monedas y la separación del mínimo de ruta.
+
+## Transporte terrestre BCN↔MAD
+
+Se añaden `omio-train-web`, `omio-bus-web`, `blablacar-web` y `trainline-web`. La selección `--modes` y las casillas del visor controlan los medios a consultar. MTY mantiene las consultas de avión.
+
+Las observaciones terrestres incluyen `transport_mode` y `journey_leg`. Omio separa la ida y el regreso, y usa `indicative_leg_reference`. BlaBlaCar y Trainline usan `indicative_route_minimum`. Los importes de un tramo se mantienen fuera del mínimo fechado de vuelos de ida y vuelta. El esquema anterior conserva avión como valor por defecto para informes históricos.

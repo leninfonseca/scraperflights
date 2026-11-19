@@ -8,6 +8,7 @@ from uuid import uuid4
 from .core import Search, Store, now, rank, money
 from .http import Client, ProviderError
 from .providers import Amadeus, Skyscanner
+from .connectors.web.ground import BlaBlaCarWeb, TrainlineWeb, OmioTrainWeb, OmioBusWeb, ground_links
 from .catalog import sources
 from .airports import AIRPORTS, destination_for, direct_for
 from .experiment import FACTORS, compare_profiles
@@ -22,7 +23,17 @@ from .connectors.web.routes import IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb
 WEB_CONNECTORS = (VuelingWeb, IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb,
                   TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb, AeromexicoWeb, LufthansaWeb, VuelingBrowser)
 DEFAULT_WEB_PROVIDERS = tuple(c.name for c in WEB_CONNECTORS if c is not VuelingBrowser)
-CONNECTORS = (Amadeus, Skyscanner, *WEB_CONNECTORS)
+GROUND_CONNECTORS = (BlaBlaCarWeb, TrainlineWeb, OmioTrainWeb, OmioBusWeb)
+CONNECTORS = (Amadeus, Skyscanner, *WEB_CONNECTORS, *GROUND_CONNECTORS)
+MODES = ('flight', 'train', 'bus', 'carpool')
+
+
+def providers_for(search, modes=MODES):
+    providers = list(DEFAULT_WEB_PROVIDERS) if 'flight' in modes else []
+    if {search.origin, search.destination} == {'BCN', 'MAD'}:
+        providers.extend(c.name for c in GROUND_CONNECTORS if c.transport_mode in modes)
+    return providers
+
 
 
 def run_search(search, provider_names, sellers, budget=40, top=5, feed=None, profile=None):
@@ -77,8 +88,8 @@ def run_search(search, provider_names, sellers, budget=40, top=5, feed=None, pro
     accepted, pending = rank(offers, search, sellers)
     supplemental = [o for o in offers if any(flag in o.warnings for flag in (
         'indicative_monthly_minimum', 'indicative_dated_reference', 'indicative_route_minimum',
-        'indicative_historical_dated_reference', 'imported_snapshot'))]
-    dated = [o for o in supplemental if 'indicative_dated_reference' in o.warnings]
+        'indicative_historical_dated_reference', 'indicative_leg_reference', 'imported_snapshot'))]
+    dated = [o for o in supplemental if 'indicative_dated_reference' in o.warnings and o.transport_mode == 'flight']
     return {'id': str(uuid4()), 'started_at': started, 'finished_at': now(), 'search': asdict(search),
         'sources': sources, 'http_requests': client.calls, 'request_budget': budget,
         'coverage_complete': all(s['status'] == 'complete' for s in sources),
@@ -86,6 +97,7 @@ def run_search(search, provider_names, sellers, budget=40, top=5, feed=None, pro
         'lowest_observed': min((o.public() for o in offers if not o.sandbox and o.provider in ('amadeus', 'skyscanner')), key=lambda o: money(o['amount']), default=None),
         'supplemental_prices': [o.public() for o in supplemental],
         'lowest_dated_reference': min((o.public() for o in dated), key=lambda o: money(o['amount']), default=None),
+        'transport_links': ground_links(search),
         'price_changes': changes, 'observations': observations,
         'notice': 'Price observations are not a guarantee of final checkout price or whole-market coverage.'}
 
@@ -94,7 +106,7 @@ def export(run, directory):
     directory.mkdir(parents=True, exist_ok=True)
     target = directory / (run['id'] + '.json')
     target.write_text(json.dumps(run, ensure_ascii=False, indent=2), encoding='utf-8')
-    fields = ['provider', 'seller', 'amount', 'currency', 'total', 'observed_at', 'verified_at', 'link', 'exclusion_reasons']
+    fields = ['transport_mode', 'journey_leg', 'provider', 'seller', 'amount', 'currency', 'total', 'observed_at', 'verified_at', 'link', 'exclusion_reasons']
     with target.with_suffix('.csv').open('w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fields, extrasaction='ignore')
         writer.writeheader()
@@ -109,7 +121,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(description='BCN, MAD and MTY: flight observations and history')
     sub = p.add_subparsers(dest='command', required=True)
     catalog = sub.add_parser('sources', help='List candidate sources; does not execute searches')
-    catalog.add_argument('--category', choices=['airline', 'agency', 'metasearch', 'distribution'])
+    catalog.add_argument('--category', choices=['airline', 'agency', 'metasearch', 'distribution', 'rail', 'coach', 'rideshare', 'multimodal'])
     catalog.add_argument('--method', choices=['api', 'web', 'browser', 'feeds'])
     catalog.add_argument('--status', choices=['implemented', 'candidate'])
     check = sub.add_parser('doctor', help='Show credential availability without exposing values')
@@ -140,7 +152,8 @@ def main(argv=None):
     q.add_argument('--cabin-bags', type=int, default=0, help='Required pieces per person')
     q.add_argument('--checked-bags', type=int, default=0, help='Required pieces per person')
     q.add_argument('--allow-stops', action='store_true')
-    q.add_argument('--providers', nargs='+', choices=[c.name for c in (*WEB_CONNECTORS, FileFeed)], default=list(DEFAULT_WEB_PROVIDERS))
+    q.add_argument('--providers', nargs='+', choices=[c.name for c in (*WEB_CONNECTORS, *GROUND_CONNECTORS, FileFeed)])
+    q.add_argument('--modes', nargs='+', choices=MODES, default=list(MODES))
     q.add_argument('--feed', type=Path, help='Import a local provider snapshot in JSON or CSV')
     q.add_argument('--budget', type=int, default=40, help='HTTP request limit per search; retries count')
     q.add_argument('--top', type=int, default=5)
@@ -198,15 +211,18 @@ def main(argv=None):
         p.error(str(exc))
     Path(args.db).parent.mkdir(parents=True, exist_ok=True)
     store = Store(args.db)
-    if {'vueling-web', 'vueling-browser'} <= set(args.providers):
+    selected = args.providers or []
+    if {'vueling-web', 'vueling-browser'} <= set(selected):
         p.error('choose one Vueling method per search')
-    if FileFeed.name in args.providers and not args.feed:
+    if FileFeed.name in selected and not args.feed:
         p.error('file-feed requires --feed')
-    if args.feed and FileFeed.name not in args.providers:
-        args.providers.append(FileFeed.name)
+
     any_response = False
     for search in searches:
-        run = run_search(search, args.providers, sellers, args.budget, args.top, args.feed)
+        selected = list(args.providers) if args.providers is not None else providers_for(search, args.modes)
+        if args.feed and FileFeed.name not in selected:
+            selected.append(FileFeed.name)
+        run = run_search(search, selected, sellers, args.budget, args.top, args.feed)
         store.save(run)
         path = export(run, Path(args.output))
         any_response |= any(s['status'] in ('complete', 'partial', 'indicative', 'imported') for s in run['sources'])

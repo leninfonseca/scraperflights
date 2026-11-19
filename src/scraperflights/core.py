@@ -59,6 +59,8 @@ class Offer:
     link: str | None = None
     sandbox: bool = False
     baggage: dict = field(default_factory=dict)
+    transport_mode: str = 'flight'
+    journey_leg: str = 'unspecified'
     # Provider payload is ephemeral, never exported or persisted.
     raw: dict = field(default_factory=dict, repr=False)
 

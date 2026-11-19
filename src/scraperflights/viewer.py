@@ -13,7 +13,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from .catalog import sources
 from .airports import AIRPORTS, destination_for, direct_for
-from .cli import DEFAULT_WEB_PROVIDERS, export, run_search
+from .cli import MODES, providers_for, export, run_search
 from .core import Search, Store
 
 MAX_REPORT = 32 * 1024 * 1024
@@ -125,6 +125,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
             direct_only = profile.get('direct_only', False)
             if not isinstance(direct_only, bool):
                 raise ValueError
+            modes = profile.get('modes', list(MODES))
+            if not isinstance(modes, list) or not modes or any(mode not in MODES for mode in modes):
+                raise ValueError
             search = Search(origin, destination, departure, return_date or None,
                             direct=direct_for(origin, destination, direct_only=direct_only))
         except (ValueError, UnicodeError):
@@ -134,7 +137,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.send_json({'error': 'Ya hay una búsqueda en curso. Espera a que termine.'}, 409)
             return
         try:
-            run = run_search(search, DEFAULT_WEB_PROVIDERS, {})
+            run = run_search(search, providers_for(search, modes), {})
             name = export(run, self.directory).name
             self.database.parent.mkdir(parents=True, exist_ok=True)
             store = Store(self.database)

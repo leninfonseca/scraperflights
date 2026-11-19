@@ -42,6 +42,21 @@ Las rutas con MTY admiten escalas por defecto. Añade `--direct-only` para limit
 
 La cobertura por MTY está habilitada en los conectores de Iberia, Kiwi.com, Trabber, Trip.com, Liligo, KAYAK y momondo. Los precios dependen de los datos publicados por cada página. Vueling, Air Europa, Rumbo y Wego mantienen su cobertura anterior y muestran `unsupported_route` para MTY. La consulta de regreso sigue dependiendo de la capacidad de cada conector. EUR se conserva como moneda del comparador.
 
+## Transporte Barcelona ↔ Madrid
+
+El visor permite marcar **avión, tren, autobús y coche compartido**. La consola consulta todos los medios por defecto en BCN↔MAD. Para elegir:
+
+```cmd
+py -m scraperflights.cli search --origin BCN --destination MAD --date 2026-12-10 --modes train bus carpool
+py -m scraperflights.cli search --origin MAD --destination BCN --date 2026-12-10 --return-date 2026-12-15 --modes train
+```
+
+Omio publica algunos trenes y autobuses fechados con operador, estaciones y horarios. Los precios de regreso se consultan como tramos independientes. BlaBlaCar y Trainline aportan mínimos orientativos de ruta. El informe conserva el medio y el tramo en JSON y CSV y el visor permite filtrar por transporte.
+
+El catálogo incluye también ALSA, Renfe (AVE y Avlo), OUIGO e iryo con enlaces de consulta manual. Algunas ofertas de estas compañías aparecen mediante Omio o Trainline. Los precios de coche compartido requieren revisar el conductor, plazas, recogida y destino.
+
+Para continuar hacia México desde Madrid, calcula el traslado entre la estación o parada de llegada y Barajas, más el margen para facturar y embarcar. Esta búsqueda no valida conexiones protegidas ni combina automáticamente billetes separados.
+
 ## Uso
 
 ```bash
@@ -73,7 +88,7 @@ Las fuentes HTML publican una selección de precios para un adulto en EUR. Si se
 
 `lowest_dated_reference` muestra la referencia fechada más barata de las extraídas. `supplemental_prices` recoge también mínimos mensuales, mínimos de ruta, referencias históricas e importaciones. Si una fuente responde sin coincidencias, el informe puede mostrar cero referencias. Eso indica qué publicó la página en esa captura. `winner` queda vacío mientras falten disponibilidad, equipaje o costes de compra confirmados.
 
-La búsqueda automática utiliza **13 webs** por defecto. El catálogo tiene **61 fuentes**, incluidas 32 agencias, 12 metabuscadores, 16 aerolíneas y Amadeus como distribuidor histórico. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
+La búsqueda de vuelos utiliza **13 conectores web** por defecto. BCN↔MAD añade 4 conectores de transporte terrestre. El catálogo tiene **68 fuentes**, incluidas 32 agencias, 12 metabuscadores, 16 aerolíneas, Amadeus y 7 fuentes de transporte terrestre. Las candidatas sirven para ampliar cobertura y consultar sus webs. Las integraciones activas y sus requisitos están en [docs/sources.md](docs/sources.md). Los adaptadores API históricos se conservan en el código fuera de la búsqueda de consola.
 
 ### Comparar precios por dispositivo, idioma o sesión
 

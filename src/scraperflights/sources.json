@@ -1227,5 +1227,165 @@
     "access_review": "pending",
     "discovery_verified_at": null,
     "notes": "Posibles tramos internos en México. Billetes separados requieren evaluar conexión."
+  },
+  {
+    "id": "alsa",
+    "name": "ALSA",
+    "category": "coach",
+    "url": "https://www.alsa.es/",
+    "methods": [
+      "web"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "transport_mode": "bus",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ],
+    "priority": 1,
+    "route_coverage": "manual",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Consulta manual. Los servicios pueden aparecer también en comparadores."
+  },
+  {
+    "id": "renfe",
+    "name": "Renfe · AVE y Avlo",
+    "category": "rail",
+    "url": "https://www.renfe.com/es/es",
+    "methods": [
+      "web"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "transport_mode": "train",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ],
+    "priority": 1,
+    "route_coverage": "manual",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Consulta manual. Los servicios pueden aparecer también en comparadores."
+  },
+  {
+    "id": "ouigo",
+    "name": "OUIGO",
+    "category": "rail",
+    "url": "https://www.ouigo.com/es/",
+    "methods": [
+      "web"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "transport_mode": "train",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ],
+    "priority": 1,
+    "route_coverage": "manual",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Consulta manual. Los servicios pueden aparecer también en comparadores."
+  },
+  {
+    "id": "iryo",
+    "name": "iryo",
+    "category": "rail",
+    "url": "https://iryo.eu/es/",
+    "methods": [
+      "web"
+    ],
+    "status": "candidate",
+    "implemented_methods": [],
+    "transport_mode": "train",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ],
+    "priority": 1,
+    "route_coverage": "manual",
+    "reputation": "not_reviewed",
+    "access_review": "pending",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Consulta manual. Los servicios pueden aparecer también en comparadores."
+  },
+  {
+    "id": "blablacar",
+    "name": "BlaBlaCar",
+    "category": "rideshare",
+    "url": "https://www.blablacar.es/",
+    "methods": [
+      "web"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
+    "transport_mode": "carpool",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ],
+    "priority": 1,
+    "route_coverage": "public_route_minimum",
+    "reputation": "not_reviewed",
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Mínimos orientativos de ruta, sin confirmar la fecha solicitada."
+  },
+  {
+    "id": "trainline",
+    "name": "Trainline",
+    "category": "rail",
+    "url": "https://www.thetrainline.com/es/",
+    "methods": [
+      "web"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
+    "transport_mode": "train",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ],
+    "priority": 1,
+    "route_coverage": "public_route_minimum",
+    "reputation": "not_reviewed",
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Mínimos orientativos de ruta, sin confirmar la fecha solicitada."
+  },
+  {
+    "id": "omio",
+    "name": "Omio",
+    "category": "multimodal",
+    "url": "https://www.omio.es/",
+    "methods": [
+      "web"
+    ],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
+    "transport_mode": "train_bus",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ],
+    "priority": 1,
+    "route_coverage": "public_dated_legs",
+    "reputation": "not_reviewed",
+    "access_review": "public_page_access_can_vary",
+    "discovery_verified_at": "2026-11-19",
+    "notes": "Precios por tramo en las fechas publicadas."
   }
 ]

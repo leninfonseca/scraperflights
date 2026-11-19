@@ -21,7 +21,13 @@
 <label>Salida<input id="departure" name="departure" type="date" required></label>
 <label id="return-field" hidden>Regreso<input id="return-date" name="return_date" type="date" disabled></label>
 <label class="direct-control"><span>Conexiones</span><span><input name="direct_only" type="checkbox"> Solo vuelos directos</span></label>
-<button id="search-button" class="primary" type="submit">Buscar vuelos</button>
+<fieldset class="mode-picker"><legend>Medios de transporte</legend>
+<label><input type="checkbox" name="modes" value="flight" checked> Avión</label>
+<label><input type="checkbox" name="modes" value="train" checked> Tren</label>
+<label><input type="checkbox" name="modes" value="bus" checked> Autobús</label>
+<label><input type="checkbox" name="modes" value="carpool" checked> BlaBlaCar</label>
+</fieldset>
+<button id="search-button" class="primary" type="submit">Buscar transporte</button>
 </form>
 <p id="search-status" class="subtle" role="status">Un adulto en turista, en euros. Las rutas con Monterrey admiten escalas por defecto.</p>
 </section>
