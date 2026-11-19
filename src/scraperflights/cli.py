@@ -106,11 +106,15 @@ def export(run, directory):
     directory.mkdir(parents=True, exist_ok=True)
     target = directory / (run['id'] + '.json')
     target.write_text(json.dumps(run, ensure_ascii=False, indent=2), encoding='utf-8')
-    fields = ['transport_mode', 'journey_leg', 'provider', 'seller', 'amount', 'currency', 'total', 'observed_at', 'verified_at', 'link', 'exclusion_reasons']
+    fields = ['origin', 'destination', 'departure', 'return_date', 'adults', 'cabin_bags',
+              'checked_bags', 'scope', 'transport_mode', 'journey_leg', 'provider', 'seller', 'amount', 'currency', 'total', 'observed_at', 'verified_at', 'link', 'exclusion_reasons']
     with target.with_suffix('.csv').open('w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fields, extrasaction='ignore')
         writer.writeheader()
-        for row in run['ranked'] + run['pending']:
+        for offer in run['ranked'] + run['pending']:
+            row = run['search'] | offer
+            row['scope'] = next((warning for warning in offer.get('warnings', [])
+                                 if warning.startswith('indicative_')), 'unclassified')
             # Protect spreadsheet consumers from formula injection.
             writer.writerow({k: ("'" + str(v) if str(v).startswith(('=', '+', '-', '@')) else v)
                              for k, v in row.items() if k in fields})
@@ -124,7 +128,7 @@ def main(argv=None):
     catalog.add_argument('--category', choices=['airline', 'agency', 'metasearch', 'distribution', 'rail', 'coach', 'rideshare', 'multimodal'])
     catalog.add_argument('--method', choices=['api', 'web', 'browser', 'feeds'])
     catalog.add_argument('--status', choices=['implemented', 'candidate'])
-    check = sub.add_parser('doctor', help='Show credential availability without exposing values')
+    sub.add_parser('doctor', help='Show credential availability without exposing values')
     history = sub.add_parser('history')
     history.add_argument('--db', default='data/flights.sqlite')
     history.add_argument('--limit', type=int, default=10)

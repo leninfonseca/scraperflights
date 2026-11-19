@@ -7,6 +7,7 @@
 <title>Scraperflights · Visor de informes</title>
 <link rel="stylesheet" href="/style.css">
 <script src="/app.js" defer></script>
+<script src="/analysis.js" defer></script>
 </head>
 <body>
 <header class="top"><div class="wrap top-inner"><a class="brand" href="/"><span class="logo" aria-hidden="true">↗</span> scraperflights</a><span class="local"><i></i> Visor local</span></div></header>
@@ -34,6 +35,19 @@
 <details class="panel section catalog">
 <summary>Catálogo de compañías y agencias</summary>
 <div id="catalog-results"></div>
+</details>
+<details class="panel section" id="analysis-section">
+<summary>Análisis histórico y variaciones porcentuales</summary>
+<p class="subtle">Compara referencias de igual ruta, fechas, moneda, transporte, vendedor y condiciones. Las horas sin zona horaria se interpretan como España peninsular.</p>
+<div class="toolbar">
+<button type="button" id="analysis-history" class="primary">Cargar histórico local</button>
+<label class="upload" for="analysis-upload">Importar Excel, CSV o JSON</label>
+<input id="analysis-upload" class="visually-hidden" type="file" accept=".xlsx,.csv,.tsv,.txt,.json" multiple>
+<button type="button" id="analysis-clear">Vaciar análisis</button>
+</div>
+<p id="analysis-status" role="status" class="subtle">Puedes combinar el histórico con tus propios archivos. XLSX de hasta 8 MB y 20.000 filas por conjunto.</p>
+<div id="analysis-import"></div>
+<div id="analysis-results"></div>
 </details>
 <div class="layout">
 <aside class="panel library">

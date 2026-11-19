@@ -8,7 +8,6 @@ La búsqueda combina páginas públicas y archivos importados.
 | Web HTTP | `src/scraperflights/connectors/web/` | Vueling, Iberia, Air Europa, Kiwi.com, Trabber, Trip.com, Rumbo, Liligo, KAYAK, momondo, Wego, Aeroméxico y Lufthansa por HTTP |
 | Navegador | `src/scraperflights/connectors/browser/` | Calendario público de Vueling renderizado con Chromium |
 | Feeds/archivos | `src/scraperflights/connectors/feeds/` | Importador local JSON y CSV. Se aporta el archivo del proveedor |
-| Contrato común | `src/scraperflights/connectors/base.py` | ready, search y refresh; compatible con los adaptadores API |
 
 El catálogo distribuido contiene 68 fuentes. Consulta las categorías y el estado con `scraperflights sources`. Las marcas candidatas pueden compartir inventario o grupo y requieren comprobar cobertura de la ruta, condiciones de acceso y reputación.
 

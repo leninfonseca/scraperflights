@@ -11,6 +11,7 @@ from sqlite3 import Error as DatabaseError
 from threading import Lock
 from urllib.parse import parse_qs, urlsplit
 
+from .analysis.service import handle as handle_analysis
 from .catalog import sources
 from .airports import AIRPORTS, destination_for, direct_for
 from .cli import MODES, providers_for, export, run_search
@@ -19,7 +20,8 @@ from .core import Search, Store
 MAX_REPORT = 32 * 1024 * 1024
 REPORT_TYPES = {'.json': 'application/json', '.csv': 'text/csv'}
 ASSETS = {'/': ('index.html', 'text/html'), '/app.js': ('app.js', 'text/javascript'),
-          '/style.css': ('style.css', 'text/css')}
+          '/style.css': ('style.css', 'text/css'),
+          '/analysis.js': ('analysis.js', 'text/javascript')}
 
 
 class DashboardHandler(BaseHTTPRequestHandler):
@@ -95,6 +97,21 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.valid_host() or self.headers.get('Origin') != f"http://{self.headers.get('Host')}":
             self.send_json({'error': 'Abre el visor desde su dirección local.'}, 403)
+            return
+        if self.path.startswith('/analysis/'):
+            if self.headers.get_content_type() != 'application/json':
+                self.send_json({'error': 'Formato JSON requerido.'}, 415)
+                return
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 32 * 1024 * 1024:
+                    raise ValueError('La petición supera el límite de 32 MB.')
+                data = json.loads(self.rfile.read(length))
+                if not isinstance(data, dict):
+                    raise ValueError('Petición inválida.')
+                self.send_json(handle_analysis(self.path, data, self.directory, self.database))
+            except (ValueError, TypeError, KeyError, OSError, OverflowError) as exc:
+                self.send_json({'error': str(exc)}, 400)
             return
         if self.path != '/search' or self.search_lock is None:
             self.send_error(404)
