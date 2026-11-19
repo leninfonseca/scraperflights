@@ -81,6 +81,8 @@ class VuelingWeb:
         return html.decode('utf-8', errors='replace')
 
     def search(self, search):
+        if 'MTY' in (search.origin, search.destination):
+            return [], 'unsupported_route'
         if search.return_date or search.adults != 1 or search.cabin_bags or search.checked_bags:
             return [], 'unsupported_profile'
         cities = {'MAD': 'madrid', 'BCN': 'barcelona'}

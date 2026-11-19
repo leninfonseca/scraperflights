@@ -5,10 +5,11 @@ from datetime import datetime
 from urllib.parse import urlsplit
 
 from ...core import Offer, money
+from ...airports import AIRPORTS
 from ...http import ProviderError
 from .vueling import VisibleText, VuelingWeb
 
-CITIES = {'MAD': 'Madrid', 'BCN': 'Barcelona'}
+CITIES = {'MAD': 'Madrid', 'BCN': 'Barcelona', 'MTY': 'Monterrey'}
 JSON_LD = re.compile(r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>', re.S | re.I)
 EUR = re.compile(r'(\d+(?:[,.]\d{1,2})?)\s*€')
 DECODER = json.JSONDecoder()
@@ -22,6 +23,8 @@ def visible_text(html):
 
 class RoutePage(VuelingWeb):
     def search(self, search):
+        if 'MTY' in (search.origin, search.destination) and not self.supports_mty:
+            return [], 'unsupported_route'
         if search.adults != 1 or search.cabin_bags or search.checked_bags:
             return [], 'unsupported_profile'
         origin, destination = CITIES[search.origin], CITIES[search.destination]
@@ -44,6 +47,7 @@ class RoutePage(VuelingWeb):
                          (['stops_unconfirmed'] if not details else [])))
         return offers, 'indicative'
 
+    supports_mty = True
     lowercase_path = True
     scope = 'indicative_dated_reference'
 
@@ -75,6 +79,7 @@ class IberiaWeb(RoutePage):
 
 class AirEuropaWeb(RoutePage):
     name, seller = 'aireuropa-web', 'Air Europa'
+    supports_mty = False
     route_url = 'https://www.aireuropa.com/es-es/ofertas-de-vuelos-desde-{origin}-a-{destination}'
 
     def extract(self, html, search):
@@ -97,11 +102,15 @@ class AirEuropaWeb(RoutePage):
 
 class KiwiWeb(RoutePage):
     name, seller = 'kiwi-web', 'Kiwi.com'
-    route_url = 'https://www.kiwi.com/es/cheap-flights/{origin}-spain/{destination}-spain/'
 
     def search(self, search):
         if search.return_date:
             return [], 'unsupported_profile'
+        origin = AIRPORTS[search.origin]
+        destination = AIRPORTS[search.destination]
+        self.route_url = ('https://www.kiwi.com/es/cheap-flights/'
+                          + origin['city'] + '-' + origin['country'] + '/'
+                          + destination['city'] + '-' + destination['country'] + '/')
         return super().search(search)
 
     def extract(self, html, search):

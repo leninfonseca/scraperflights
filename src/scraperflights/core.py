@@ -4,6 +4,7 @@ from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import sqlite3
+from .airports import AIRPORTS
 
 
 def now():
@@ -30,8 +31,8 @@ class Search:
     currency: str = 'EUR'
 
     def __post_init__(self):
-        if {self.origin, self.destination} != {'MAD', 'BCN'}:
-            raise ValueError('Only MAD ↔ BCN is supported')
+        if self.origin not in AIRPORTS or self.destination not in AIRPORTS or self.origin == self.destination:
+            raise ValueError('Choose two different airports from BCN, MAD and MTY')
         dep = date.fromisoformat(self.departure)
         if dep < datetime.now(timezone.utc).date():
             raise ValueError('Departure is in the past')

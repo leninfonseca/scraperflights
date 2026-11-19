@@ -67,3 +67,7 @@ Cada prueba ejecuta los dos perfiles consecutivamente por proveedor desde el mis
 El JSON `output/comparison-*.json` registra el perfil, orden, hora, resultados y estado de cada fuente. Compara mínimos de la misma fuente, moneda y alcance (fechado, mensual o de ruta) por separado. `delta_b_minus_a` es B menos A. Si falta un lado, queda sin emparejar. El número de observaciones y el intervalo entre ellas ayudan a interpretar el resultado.
 
 Las diferencias pueden reflejar cambios de inventario, caché o selección de ofertas. La comparación mide mínimos publicados. Las webs actuales suelen carecer de identificadores de tarifa y total de compra. El informe no atribuye causalidad ni certifica una diferencia para el mismo billete. El modo no utiliza cuentas, claves ni proxies de rotación.
+
+## Monterrey
+
+BCN↔MTY y MAD↔MTY están disponibles en consola y visor con escalas por defecto. `--destination` elige el destino y `--direct-only` restringe a directos. Las búsquedas anteriores sin destino conservan BCN↔MAD. El informe registra una ruta sin cobertura como `unsupported_route`. Cada página puede publicar precios de fechas distintas a las solicitadas.

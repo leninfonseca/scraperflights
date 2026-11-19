@@ -57,7 +57,12 @@
     "reputation": "not_assessed",
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar."
+    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar. Conector habilitado para BCN↔MTY y MAD↔MTY, sujeto a acceso y datos publicados.",
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ]
   },
   {
     "id": "vueling",
@@ -78,7 +83,11 @@
     "reputation": "not_assessed",
     "access_review": "public_calendar_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Calendario orientativo de ida. La comprobación de tarifa y plaza para una fecha exacta requiere una fuente de inventario."
+    "notes": "Calendario orientativo de ida. La comprobación de tarifa y plaza para una fecha exacta requiere una fuente de inventario.",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ]
   },
   {
     "id": "air_europa",
@@ -98,7 +107,11 @@
     "reputation": "not_assessed",
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar."
+    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar.",
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ]
   },
   {
     "id": "google_flights",
@@ -135,11 +148,16 @@
     "reputation": "not_assessed",
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Mínimo de ruta. Puede compartir datos con momondo.",
+    "notes": "Mínimo de ruta. Puede compartir datos con momondo. Conector habilitado para BCN↔MTY y MAD↔MTY, sujeto a acceso y datos publicados.",
     "route_links": {
       "MAD-BCN": "https://www.kayak.es/vuelos/Madrid-Adolfo-Suarez-Madrid-Barajas-MAD/Barcelona-El-Prat-BCN",
       "BCN-MAD": "https://www.kayak.es/vuelos/Barcelona-El-Prat-BCN/Madrid-Adolfo-Suarez-Madrid-Barajas-MAD"
-    }
+    },
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ]
   },
   {
     "id": "momondo",
@@ -159,11 +177,16 @@
     "reputation": "not_assessed",
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Mínimo de ruta. Puede compartir datos con KAYAK.",
+    "notes": "Mínimo de ruta. Puede compartir datos con KAYAK. Conector habilitado para BCN↔MTY y MAD↔MTY, sujeto a acceso y datos publicados.",
     "route_links": {
       "MAD-BCN": "https://www.momondo.es/vuelos/madrid/aeropuerto-de-barcelona-el-prat-bcn",
       "BCN-MAD": "https://www.momondo.es/vuelos/aeropuerto-de-barcelona-el-prat-bcn/madrid"
-    }
+    },
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ]
   },
   {
     "id": "expedia",
@@ -219,11 +242,16 @@
     "reputation": "not_reviewed",
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Referencias publicadas de ida y vuelta con fechas exactas.",
+    "notes": "Referencias publicadas de ida y vuelta con fechas exactas. Conector habilitado para BCN↔MTY y MAD↔MTY, sujeto a acceso y datos publicados.",
     "route_links": {
       "MAD-BCN": "https://es.trip.com/flights/airport-mad-bcn/",
       "BCN-MAD": "https://es.trip.com/flights/airport-bcn-mad/"
-    }
+    },
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ]
   },
   {
     "id": "lastminute",
@@ -305,7 +333,11 @@
     "route_links": {
       "MAD-BCN": "https://www.rumbo.es/vuelos/r_madrid--barcelona",
       "BCN-MAD": "https://www.rumbo.es/vuelos/r_barcelona--madrid"
-    }
+    },
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ]
   },
   {
     "id": "atrapalo",
@@ -379,7 +411,12 @@
     "reputation": "not_reviewed",
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar."
+    "notes": "Referencias fechadas publicadas. Disponibilidad, equipaje y precio de compra sin verificar. Conector habilitado para BCN↔MTY y MAD↔MTY, sujeto a acceso y datos publicados.",
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ]
   },
   {
     "id": "destinia",
@@ -669,7 +706,12 @@
     "reputation": "not_assessed",
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Mínimo orientativo de la ruta, sin filtro de fecha ni disponibilidad de compra."
+    "notes": "Mínimo orientativo de la ruta, sin filtro de fecha ni disponibilidad de compra. Conector habilitado para BCN↔MTY y MAD↔MTY, sujeto a acceso y datos publicados.",
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ]
   },
   {
     "id": "liligo",
@@ -689,11 +731,16 @@
     "reputation": "not_assessed",
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-07",
-    "notes": "Mínimo de ruta. Sin verificación de fechas ni disponibilidad.",
+    "notes": "Mínimo de ruta. Sin verificación de fechas ni disponibilidad. Conector habilitado para BCN↔MTY y MAD↔MTY, sujeto a acceso y datos publicados.",
     "route_links": {
       "MAD-BCN": "https://www.liligo.es/vuelos/rutas/madrid/barcelona",
       "BCN-MAD": "https://www.liligo.es/vuelos/rutas/barcelona/madrid"
-    }
+    },
+    "supported_airports": [
+      "BCN",
+      "MAD",
+      "MTY"
+    ]
   },
   {
     "id": "wego",
@@ -717,7 +764,11 @@
     "route_links": {
       "MAD-BCN": "https://www.wego.com.es/vuelos/mad/bcn/vuelos-mas-baratos-desde-madrid-a-barcelona-649",
       "BCN-MAD": "https://www.wego.com.es/vuelos/bcn/mad/vuelos-mas-baratos-desde-barcelona-649-a-madrid"
-    }
+    },
+    "supported_airports": [
+      "BCN",
+      "MAD"
+    ]
   },
   {
     "id": "idealo",

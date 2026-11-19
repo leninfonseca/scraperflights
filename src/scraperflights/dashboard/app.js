@@ -16,6 +16,7 @@ const labels = {
   exact_flight_not_confirmed: 'Vuelo concreto sin confirmar', stops_unconfirmed: 'Escalas sin confirmar',
   revalidation_failed: 'No se pudo revalidar', indicative: 'Orientativo', imported: 'Importado',
   complete: 'Completo', partial: 'Parcial', unsupported_profile: 'Perfil sin cobertura',
+  unsupported_route: 'Ruta sin cobertura en este conector',
   credentials_missing: 'Faltan credenciales', error: 'Error', paired: 'Comparable',
   no_comparable_observations: 'Sin pares comparables', same_minimum: 'Mismo mínimo',
   different_minimum: 'Mínimo diferente', unpaired: 'Falta un perfil', device: 'Dispositivo',
@@ -364,13 +365,18 @@ updateReturnDate();
 searchForm.addEventListener('submit', async event => {
   event.preventDefault();
   const values = new FormData(searchForm);
+  if (values.get('origin') === values.get('destination')) {
+    $('search-status').textContent = 'Elige dos aeropuertos diferentes.';
+    return;
+  }
   const status = $('search-status');
   searchButton.disabled = true;
   status.textContent = 'Consultando las webs… Puede tardar unos segundos.';
   try {
     const response = await fetch('/search', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({origin: values.get('origin'), departure: values.get('departure'),
+      body: JSON.stringify({origin: values.get('origin'), destination: values.get('destination'),
+                            direct_only: values.get('direct_only') === 'on', departure: values.get('departure'),
                             return_date: values.get('return_date') || null}),
     });
     const result = await response.json();

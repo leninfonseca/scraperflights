@@ -9,6 +9,7 @@ from .core import Search, Store, now, rank, money
 from .http import Client, ProviderError
 from .providers import Amadeus, Skyscanner
 from .catalog import sources
+from .airports import AIRPORTS, destination_for, direct_for
 from .experiment import FACTORS, compare_profiles
 from .connectors.web.vueling import VuelingWeb
 from .connectors.browser.vueling import VuelingBrowser
@@ -40,7 +41,7 @@ def run_search(search, provider_names, sellers, budget=40, top=5, feed=None, pro
             found, complete = provider.search(search)
             observations.extend(o.public() for o in found)
             status.update(status=complete, results=len(found))
-            if complete in ('indicative', 'imported', 'unsupported_profile'):
+            if complete in ('indicative', 'imported', 'unsupported_profile', 'unsupported_route'):
                 offers.extend(found)
                 status['finished_at'] = now()
                 continue
@@ -104,7 +105,7 @@ def export(run, directory):
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description='MAD ↔ BCN: hybrid flight observations, repricing and history')
+    p = argparse.ArgumentParser(description='BCN, MAD and MTY: flight observations and history')
     sub = p.add_subparsers(dest='command', required=True)
     catalog = sub.add_parser('sources', help='List candidate sources; does not execute searches')
     catalog.add_argument('--category', choices=['airline', 'agency', 'metasearch', 'distribution'])
@@ -115,7 +116,9 @@ def main(argv=None):
     history.add_argument('--db', default='data/flights.sqlite')
     history.add_argument('--limit', type=int, default=10)
     compare = sub.add_parser('compare', help='Compare fixed web profiles without flight APIs')
-    compare.add_argument('--origin', choices=['MAD', 'BCN'], default='MAD')
+    compare.add_argument('--origin', choices=list(AIRPORTS), default='MAD')
+    compare.add_argument('--destination', choices=list(AIRPORTS))
+    compare.add_argument('--direct-only', action='store_true')
     compare.add_argument('--date', required=True)
     compare.add_argument('--return-date')
     compare.add_argument('--allow-stops', action='store_true')
@@ -125,7 +128,9 @@ def main(argv=None):
                          default=list(DEFAULT_WEB_PROVIDERS))
     compare.add_argument('--output', type=Path, default=Path('output'))
     q = sub.add_parser('search')
-    q.add_argument('--origin', choices=['MAD', 'BCN'], default='MAD')
+    q.add_argument('--origin', choices=list(AIRPORTS), default='MAD')
+    q.add_argument('--destination', choices=list(AIRPORTS))
+    q.add_argument('--direct-only', action='store_true')
     q.add_argument('--date', required=True)
     q.add_argument('--return-date')
     q.add_argument('--both-directions', action='store_true', help='Independent searches, not a return ticket')
@@ -157,8 +162,9 @@ def main(argv=None):
         return 0
     if args.command == 'compare':
         try:
-            search = Search(args.origin, 'BCN' if args.origin == 'MAD' else 'MAD',
-                            args.date, args.return_date, direct=not args.allow_stops)
+            destination = destination_for(args.origin, args.destination)
+            search = Search(args.origin, destination, args.date, args.return_date,
+                            direct=direct_for(args.origin, destination, args.allow_stops, args.direct_only))
         except ValueError as exc:
             p.error(str(exc))
         report = compare_profiles(search, list(dict.fromkeys(args.providers)),
@@ -177,11 +183,16 @@ def main(argv=None):
         sellers = json.loads(Path(args.sellers).read_text(encoding='utf-8'))
         base = date.fromisoformat(args.date)
         searches = []
+        destination = destination_for(args.origin, args.destination)
+        routes = [(args.origin, destination)]
+        if args.both_directions:
+            routes.append((destination, args.origin))
         for shift in range(-args.flex_days, args.flex_days + 1):
-            for origin in ([args.origin, 'BCN' if args.origin == 'MAD' else 'MAD'] if args.both_directions else [args.origin]):
-                searches.append(Search(origin, 'BCN' if origin == 'MAD' else 'MAD',
+            for origin, target in routes:
+                searches.append(Search(origin, target,
                     (base + timedelta(days=shift)).isoformat(), args.return_date, args.adults,
-                    args.cabin_bags, args.checked_bags, not args.allow_stops))
+                    args.cabin_bags, args.checked_bags,
+                    direct_for(origin, target, args.allow_stops, args.direct_only)))
     except (ValueError, OSError) as exc:
         p.error(str(exc))
     Path(args.db).parent.mkdir(parents=True, exist_ok=True)

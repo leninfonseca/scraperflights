@@ -12,6 +12,7 @@ from threading import Lock
 from urllib.parse import parse_qs, urlsplit
 
 from .catalog import sources
+from .airports import AIRPORTS, destination_for, direct_for
 from .cli import DEFAULT_WEB_PROVIDERS, export, run_search
 from .core import Search, Store
 
@@ -111,14 +112,21 @@ class DashboardHandler(BaseHTTPRequestHandler):
             origin = profile.get('origin')
             departure = profile.get('departure')
             return_date = profile.get('return_date')
-            if origin not in ('MAD', 'BCN') or not isinstance(departure, str):
+            if origin not in AIRPORTS or not isinstance(departure, str):
                 raise ValueError
             if return_date is not None and not isinstance(return_date, str):
                 raise ValueError
             dates = [departure] + ([return_date] if return_date else [])
             if any(date.fromisoformat(value).isoformat() != value for value in dates):
                 raise ValueError
-            search = Search(origin, 'BCN' if origin == 'MAD' else 'MAD', departure, return_date or None)
+            destination = destination_for(origin, profile.get('destination'))
+            if destination not in AIRPORTS:
+                raise ValueError
+            direct_only = profile.get('direct_only', False)
+            if not isinstance(direct_only, bool):
+                raise ValueError
+            search = Search(origin, destination, departure, return_date or None,
+                            direct=direct_for(origin, destination, direct_only=direct_only))
         except (ValueError, UnicodeError):
             self.send_json({'error': 'Indica una salida válida y, si hay regreso, una fecha igual o posterior.'}, 400)
             return

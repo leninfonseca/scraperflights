@@ -3,6 +3,8 @@ from datetime import date, datetime, timezone
 from decimal import InvalidOperation
 import json
 import re
+from zoneinfo import ZoneInfo
+from ...airports import AIRPORTS
 from urllib.parse import parse_qs, urlsplit
 
 from ...core import money
@@ -83,8 +85,14 @@ class TripComWeb(RoutePage):
                 continue
             if not flight.get('flightNumber') or not flight.get('departureTime'):
                 continue
+            departure = datetime.fromisoformat(flight['departureTime'].replace('Z', '+00:00'))
+            if departure.tzinfo is not None:
+                departure = departure.astimezone(ZoneInfo(AIRPORTS[route[0]]['timezone']))
+            expected_date = search.departure if leg == 0 else search.return_date
+            if departure.date().isoformat() != expected_date:
+                continue
             segment = {'leg': leg, 'origin': route[0], 'destination': route[1],
-                       'departure': flight['departureTime'], 'arrival': flight.get('arrivalTime'),
+                       'departure': departure.isoformat(), 'arrival': flight.get('arrivalTime'),
                        'flight': flight['flightNumber'], 'operator': flight.get('provider', {}).get('name'),
                        'nonstop': flight.get('isNonstop')}
             groups.setdefault(url, {})[leg] = (euros(offer.get('price')), segment)
@@ -100,6 +108,7 @@ class TripComWeb(RoutePage):
 
 class RumboWeb(RoutePage):
     name, seller = 'rumbo-web', 'Rumbo'
+    supports_mty = False
     route_url = 'https://www.rumbo.es/vuelos/r_{origin}--{destination}'
 
     def extract(self, html, search):
@@ -169,7 +178,7 @@ class KayakWeb(RouteMinimumWeb):
     lowercase_path = False
 
     def search(self, search):
-        airport_slugs = {'MAD': 'Madrid-Adolfo-Suarez-Madrid-Barajas-MAD', 'BCN': 'Barcelona-El-Prat-BCN'}
+        airport_slugs = {'MAD': 'Madrid-Adolfo-Suarez-Madrid-Barajas-MAD', 'BCN': 'Barcelona-El-Prat-BCN', 'MTY': 'Aeropuerto-Internacional-de-Monterrey-MTY'}
         self.route_url = f'https://www.kayak.es/vuelos/{airport_slugs[search.origin]}/{airport_slugs[search.destination]}'
         return super().search(search)
 
@@ -180,15 +189,21 @@ class MomondoWeb(RouteMinimumWeb):
     def search(self, search):
         paths = {'MAD': 'madrid/aeropuerto-de-barcelona-el-prat-bcn',
                  'BCN': 'aeropuerto-de-barcelona-el-prat-bcn/madrid'}
-        self.route_url = 'https://www.momondo.es/vuelos/' + paths[search.origin]
+        if 'MTY' in (search.origin, search.destination):
+            self.route_url = f'https://www.momondo.es/vuelos/{CITIES[search.origin]}/{CITIES[search.destination]}'
+        else:
+            self.route_url = 'https://www.momondo.es/vuelos/' + paths[search.origin]
         return super().search(search)
 
 
 class WegoWeb(RoutePage):
     name, seller = 'wego-web', 'Wego'
+    supports_mty = False
     scope = 'indicative_historical_dated_reference'
 
     def search(self, search):
+        if 'MTY' in (search.origin, search.destination):
+            return [], 'unsupported_route'
         paths = {
             'MAD': 'mad/bcn/vuelos-mas-baratos-desde-madrid-a-barcelona-649',
             'BCN': 'bcn/mad/vuelos-mas-baratos-desde-barcelona-649-a-madrid',

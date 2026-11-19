@@ -1,6 +1,6 @@
 # scraperflights
 
-Buscador web de referencias de precio para **Madrid (MAD) ↔ Barcelona (BCN)** con histórico SQLite y exportación JSON/CSV. El comando de búsqueda funciona sin claves ni llamadas a APIs de vuelos.
+Buscador web de referencias de precio para **Barcelona (BCN), Madrid (MAD) y Monterrey (MTY)** con histórico SQLite y exportación JSON/CSV. El comando de búsqueda funciona sin claves ni llamadas a APIs de vuelos.
 
 ## Ver informes en el navegador
 
@@ -18,6 +18,21 @@ El JSON de búsqueda muestra fechas, la referencia más barata para esas fechas,
 Para buscar desde el visor, selecciona la ruta, elige **Solo ida** o **Ida y vuelta** y rellena las fechas. El visor guarda el JSON y el CSV en la carpeta de salida y añade la búsqueda al histórico. El catálogo del visor enlaza tanto a las fuentes integradas como a las candidatas para consulta manual.
 
 El visor se ejecuta en tu equipo. Cierra CMD o pulsa Ctrl+C para detenerlo.
+
+## Rutas con Monterrey
+
+Selecciona origen y destino en el visor, o usa `--destination` en CMD:
+
+```cmd
+py -m scraperflights.cli search --origin BCN --destination MTY --date 2027-01-15 --return-date 2027-02-01
+py -m scraperflights.cli search --origin MAD --destination MTY --date 2027-01-15
+py -m scraperflights.cli search --origin MTY --destination BCN --date 2027-02-01
+py -m scraperflights.cli search --origin MTY --destination MAD --date 2027-02-01
+```
+
+Las rutas con MTY admiten escalas por defecto. Añade `--direct-only` para limitar a directos. `--both-directions` invierte origen y destino y conserva las fechas para búsquedas independientes. Para comparar salir desde Madrid, puedes buscar BCN–MAD y MAD–MTY por separado. Los billetes separados requieren planificar traslado, equipaje y margen de conexión.
+
+La cobertura por MTY está habilitada en los conectores de Iberia, Kiwi.com, Trabber, Trip.com, Liligo, KAYAK y momondo. Los precios dependen de los datos publicados por cada página. Vueling, Air Europa, Rumbo y Wego mantienen su cobertura anterior y muestran `unsupported_route` para MTY. La consulta de regreso sigue dependiendo de la capacidad de cada conector. EUR se conserva como moneda del comparador.
 
 ## Uso
 
@@ -88,7 +103,7 @@ Las secciones siguientes conservan el diseño objetivo y las variables de precio
 
 ## 1. Alcance y decisiones iniciales
 
-- Rutas independientes MAD → BCN y BCN → MAD. Solo aeropuertos exactos; Girona y Reus requieren activación explícita.
+- Rutas entre BCN, MAD y MTY en ambos sentidos. Solo aeropuertos exactos; Girona y Reus requieren activación explícita.
 - Ida e ida/vuelta. Para ida/vuelta comparar billete conjunto y dos billetes separados, conservando sus diferencias de condiciones y responsabilidad.
 - Directos por defecto; escalas en una clasificación separada y opcional.
 - Perfil inicial configurable: 1 adulto, turista, mercado España, EUR, idioma es-ES, sin cuenta ni membresía. Equipaje requerido siempre explícito.
