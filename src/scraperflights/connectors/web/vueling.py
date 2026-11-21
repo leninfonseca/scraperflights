@@ -1,12 +1,12 @@
 """Public Vueling route calendar. Monthly minima are indicative."""
 import gzip
 import re
-from html.parser import HTMLParser
+import time
 from http.cookiejar import CookieJar
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPCookieProcessor, Request, build_opener, urlopen
 
-from ...core import Offer, money
+from ...core import Offer
 from ...http import ProviderError
 
 MONTHS = dict(zip(
@@ -18,23 +18,8 @@ MONTH_PRICE = re.compile(
 MAX_HTML = 5_000_000
 
 
-class VisibleText(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.parts = []
-        self.hidden = False
-
-    def handle_starttag(self, tag, attrs):
-        if tag in ('script', 'style'):
-            self.hidden = True
-
-    def handle_endtag(self, tag):
-        if tag in ('script', 'style'):
-            self.hidden = False
-
-    def handle_data(self, data):
-        if not self.hidden and data.strip():
-            self.parts.append(data.strip())
+# Compatibility name retained for existing callers.
+from .html import Document as VisibleText, amount
 
 
 class VuelingWeb:
@@ -49,11 +34,18 @@ class VuelingWeb:
 
     def fetch(self, url):
         profile = self.client.profile
+        cache = getattr(self.client, '_html_cache', {})
+        if profile is None and url in cache:
+            html, metadata = cache[url]
+            self.fetch_diagnostics = metadata | {'cache_hit': True}
+            return html
         headers = profile.headers() if profile else {
             'User-Agent': 'scraperflights/0.1', 'Accept-Language': 'es-ES'}
         request = Request(url, headers=headers)
         warm = profile is not None and profile.session == 'warm'
         opener = build_opener(HTTPCookieProcessor(CookieJar())).open if profile else urlopen
+        started = time.monotonic()
+        self.fetch_diagnostics = {'cache_hit': False}
 
         def open_page():
             if self.client.calls >= self.client.budget:
@@ -61,24 +53,50 @@ class VuelingWeb:
             self.client.calls += 1
             return opener(request, timeout=self.client.timeout)
 
+        def read_page(response):
+            if response.headers.get('cf-mitigated') == 'challenge':
+                raise ProviderError('web_access_blocked')
+            content_type = response.headers.get_content_type()
+            if content_type not in ('text/html', 'application/xhtml+xml'):
+                raise ProviderError('web_unexpected_content_type')
+            encoding = response.headers.get('Content-Encoding', '').lower()
+            if encoding not in ('', 'identity', 'gzip'):
+                raise ProviderError('web_unsupported_encoding')
+            stream = gzip.GzipFile(fileobj=response) if encoding == 'gzip' else response
+            content = stream.read(MAX_HTML + 1)
+            if len(content) > MAX_HTML:
+                raise ProviderError('web_page_too_large')
+            charset = response.headers.get_content_charset() or 'utf-8'
+            try:
+                html = content.decode(charset)
+            except (UnicodeError, LookupError):
+                # Legacy Spanish pages commonly omit their Windows-1252 charset.
+                charset = 'windows-1252'
+                html = content.decode('cp1252', errors='replace')
+            text = html.casefold()
+            if 'cf_chl_' in text or 'just a moment...' in text or '<title>access denied' in text:
+                raise ProviderError('web_access_blocked')
+            self.fetch_diagnostics.update(http_status=getattr(response, 'status', 200),
+                bytes=len(content), charset=charset, content_type=content_type)
+            return html
+
         try:
             if warm:
                 with open_page() as response:
-                    if response.headers.get('cf-mitigated') == 'challenge':
-                        raise ProviderError('web_access_blocked')
+                    read_page(response)
             with open_page() as response:
-                if response.headers.get('cf-mitigated') == 'challenge':
-                    raise ProviderError('web_access_blocked')
-                stream = (gzip.GzipFile(fileobj=response)
-                          if response.headers.get('Content-Encoding') == 'gzip' else response)
-                html = stream.read(MAX_HTML + 1)
+                html = read_page(response)
         except HTTPError as exc:
+            self.fetch_diagnostics['http_status'] = exc.code
             raise ProviderError(f'http_{exc.code}') from None
         except (URLError, TimeoutError, OSError, EOFError):
             raise ProviderError('web_network_error') from None
-        if len(html) > MAX_HTML:
-            raise ProviderError('web_page_too_large')
-        return html.decode('utf-8', errors='replace')
+        finally:
+            self.fetch_diagnostics['elapsed_ms'] = round((time.monotonic() - started) * 1000)
+        if profile is None and len(cache) < 8:
+            cache[url] = (html, dict(self.fetch_diagnostics))
+            self.client._html_cache = cache
+        return html
 
     def search(self, search):
         if 'MTY' in (search.origin, search.destination):
@@ -103,7 +121,9 @@ class VuelingWeb:
             name, year, price = match.groups()
             number = MONTHS.get(name.lower())
             if number and f'{year}-{number:02}' == month:
-                prices.append(money(price.replace(',', '.')))
+                parsed = amount(price)
+                if parsed is not None:
+                    prices.append(parsed)
         if not prices:
             return [], 'indicative'
         return [Offer(self.name, f'{search.origin}-{search.destination}-{month}', 'Vueling',

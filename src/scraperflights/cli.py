@@ -17,12 +17,12 @@ from .connectors.web.vueling import VuelingWeb
 from .connectors.browser.vueling import VuelingBrowser
 from .connectors.feeds.file import FileFeed
 
-from .connectors.web.mexico import AeromexicoWeb, LufthansaWeb
+from .connectors.web.mexico import AeromexicoWeb, LufthansaWeb, SwissWeb, BrusselsWeb
 from .connectors.web.agency import TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb
 from .connectors.web.routes import IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb
 
 WEB_CONNECTORS = (VuelingWeb, IberiaWeb, AirEuropaWeb, KiwiWeb, TrabberWeb,
-                  TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb, AeromexicoWeb, LufthansaWeb, VuelingBrowser)
+                  TripComWeb, RumboWeb, LiligoWeb, KayakWeb, MomondoWeb, WegoWeb, AeromexicoWeb, LufthansaWeb, SwissWeb, BrusselsWeb, VuelingBrowser)
 DEFAULT_WEB_PROVIDERS = tuple(c.name for c in WEB_CONNECTORS if c is not VuelingBrowser)
 GROUND_CONNECTORS = (BlaBlaCarWeb, TrainlineWeb, OmioTrainWeb, OmioBusWeb)
 CONNECTORS = (Amadeus, Skyscanner, *WEB_CONNECTORS, *GROUND_CONNECTORS)
@@ -52,6 +52,10 @@ def run_search(search, provider_names, sellers, budget=40, top=5, feed=None, pro
             continue
         try:
             found, complete = provider.search(search)
+            if hasattr(provider, 'fetch_diagnostics'):
+                status['http'] = provider.fetch_diagnostics
+            if hasattr(provider, 'parse_diagnostics'):
+                status['extraction'] = provider.parse_diagnostics
             observations.extend(o.public() for o in found)
             status.update(status=complete, results=len(found))
             if complete in ('indicative', 'imported', 'unsupported_profile', 'unsupported_route'):
@@ -84,6 +88,8 @@ def run_search(search, provider_names, sellers, budget=40, top=5, feed=None, pro
             status['refreshed'] = refreshed_count
         except (ProviderError, ValueError, KeyError, TypeError, OverflowError) as exc:
             # Never log response payload, URLs, tokens or credentials.
+            if hasattr(provider, 'fetch_diagnostics'):
+                status['http'] = provider.fetch_diagnostics
             status.update(status='error', error=str(exc) if isinstance(exc, ProviderError) else 'schema_validation_failed')
         status['finished_at'] = now()
     accepted, pending = rank(offers, search, sellers)

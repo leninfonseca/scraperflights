@@ -7,18 +7,12 @@ from urllib.parse import urlsplit
 from ...core import Offer, money
 from ...airports import AIRPORTS
 from ...http import ProviderError
-from .vueling import VisibleText, VuelingWeb
+from .vueling import VuelingWeb
+from .html import document, visible_text, structured_nodes, embedded_nodes, amount, has_type, object_value, route_name_matches
 
 CITIES = {'MAD': 'Madrid', 'BCN': 'Barcelona', 'MTY': 'Monterrey'}
-JSON_LD = re.compile(r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>', re.S | re.I)
-EUR = re.compile(r'(\d+(?:[,.]\d{1,2})?)\s*€')
+EUR = re.compile(r'(?<![\w.,-])(\d{1,3}(?:[.\s\u00a0\u202f]\d{3})+(?:,\d{1,2})?|\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*€')
 DECODER = json.JSONDecoder()
-
-
-def visible_text(html):
-    parser = VisibleText()
-    parser.feed(html)
-    return ' '.join(' '.join(parser.parts).split())
 
 
 class RoutePage(VuelingWeb):
@@ -39,12 +33,23 @@ class RoutePage(VuelingWeb):
         if prices is None:
             raise ProviderError('web_offers_not_found')
         offers = []
+        rejected = 0
+        unique = set()
         for i, (price, details, link) in enumerate(prices):
+            parsed = amount(price)
+            if parsed is None:
+                rejected += 1
+                continue
+            signature = (parsed, json.dumps(details, sort_keys=True), link)
+            if signature in unique:
+                continue
+            unique.add(signature)
             offers.append(Offer(
                 self.name, f'{search.origin}-{search.destination}-{search.departure}-{search.return_date}-{i}',
-                self.seller, details, str(money(str(price).replace(',', '.'))), 'EUR', link=link or url,
+                self.seller, details, str(parsed), 'EUR', link=link or url,
                 warnings=[self.scope, 'availability_and_checkout_unverified'] +
                          (['stops_unconfirmed'] if not details else [])))
+        self.parse_diagnostics = {'parsed_rows': len(prices), 'invalid_prices': rejected, 'offers': len(offers)}
         return offers, 'indicative'
 
     supports_mty = True
@@ -58,14 +63,14 @@ class IberiaWeb(RoutePage):
     lowercase_path = False
 
     def extract(self, html, search):
-        cards = re.findall(r'<article\b[^>]*>.*?</article>', html, re.S)
+        cards = document(html).articles
         result = []
         seen = False
         for card in cards:
             if 'cards-block-column--article__content-dates--start' not in card:
                 continue
             seen = True
-            if re.findall(r'class="iata"[^>]*>\s*([A-Z]{3})', card) != [search.origin, search.destination]:
+            if re.findall(r'class=["\'][^"\']*\biata\b[^"\']*["\'][^>]*>\s*([A-Z]{3})', card, re.I) != [search.origin, search.destination]:
                 continue
             text = visible_text(card)
             dates = re.findall(r'\b\d{4}-\d{2}-\d{2}\b', text)
@@ -83,21 +88,21 @@ class AirEuropaWeb(RoutePage):
     route_url = 'https://www.aireuropa.com/es-es/ofertas-de-vuelos-desde-{origin}-a-{destination}'
 
     def extract(self, html, search):
-        markers = list(re.finditer(r'\{\s*"__typename"\s*:\s*"Fare"\s*,', html))
         results = set()
-        for marker in markers:
-            try:
-                row, _ = DECODER.raw_decode(html, marker.start())
-            except ValueError:
+        seen = False
+        for row in embedded_nodes(html):
+            if row.get('__typename') != 'Fare':
                 continue
+            seen = True
             if (row.get('originAirportCode'), row.get('destinationAirportCode'),
                 row.get('departureDate'), row.get('returnDate'), row.get('currencyCode'),
                 row.get('travelClass'), row.get('flightType')) == (
                     search.origin, search.destination, search.departure, search.return_date,
                     'EUR', 'ECONOMY', 'ROUND_TRIP' if search.return_date else 'ONE_WAY'):
-                if row.get('totalPrice') is not None and row.get('redemption') is None:
-                    results.add(money(row['totalPrice']))
-        return [(price, [], None) for price in sorted(results)] if markers else None
+                price = amount(row.get('totalPrice'))
+                if price is not None and row.get('redemption') is None:
+                    results.add(price)
+        return [(price, [], None) for price in sorted(results)] if seen else None
 
 
 class KiwiWeb(RoutePage):
@@ -116,37 +121,43 @@ class KiwiWeb(RoutePage):
     def extract(self, html, search):
         results = {}
         seen = False
-        for script in JSON_LD.findall(html):
-            try:
-                block = json.loads(script)
-            except ValueError:
-                continue
-            if not isinstance(block, dict) or block.get('@type') != 'CollectionPage':
+        for block in structured_nodes(html):
+            if not has_type(block, 'CollectionPage'):
                 continue
             seen = True
-            for entry in block.get('mainEntity', {}).get('itemListElement', []):
-                offer = entry.get('item', {})
+            entries = object_value(block.get('mainEntity')).get('itemListElement')
+            for entry in entries if isinstance(entries, list) else []:
+                offer = object_value(object_value(entry).get('item'))
                 if offer.get('priceCurrency') != 'EUR' or offer.get('price') is None:
                     continue
-                legs = offer.get('itemOffered', {}).get('itinerary', {}).get('itemListElement', [])
-                if len(legs) != 1:
+                legs = object_value(object_value(offer.get('itemOffered')).get('itinerary')).get('itemListElement')
+                if not isinstance(legs, list) or len(legs) != 1:
                     continue
-                leg = legs[0]
-                dep = leg.get('departureTime', '')
-                if (leg.get('departureAirport', {}).get('iataCode'),
-                    leg.get('arrivalAirport', {}).get('iataCode'), dep[:10]) != (
+                leg = object_value(legs[0])
+                dep = leg.get('departureTime')
+                if not isinstance(dep, str):
+                    continue
+                if (object_value(leg.get('departureAirport')).get('iataCode'),
+                    object_value(leg.get('arrivalAirport')).get('iataCode'), dep[:10]) != (
                         search.origin, search.destination, search.departure):
                     continue
-                datetime.fromisoformat(dep)
-                direct = 'sin escalas' in leg.get('description', '').lower()
-                if search.direct and (not direct or 'con escalas' in offer.get('name', '').lower()):
+                try:
+                    datetime.fromisoformat(dep)
+                except (ValueError, TypeError):
                     continue
-                link = offer.get('url', '')
+                direct = 'sin escalas' in str(leg.get('description') or '').lower()
+                if search.direct and (not direct or 'con escalas' in str(offer.get('name') or '').lower()):
+                    continue
+                link = offer.get('url')
+                if not isinstance(link, str):
+                    continue
                 parsed = urlsplit(link)
                 if (parsed.scheme != 'https' or parsed.netloc != 'www.kiwi.com'
                         or not parsed.path.endswith(f'/{search.departure}/no-return/')):
                     continue
-                price = money(offer['price'])
+                price = amount(offer['price'])
+                if price is None:
+                    continue
                 results[(dep, price)] = (price, [{'leg': 0, 'origin': search.origin,
                     'destination': search.destination, 'departure': dep}], link)
         return list(results.values()) if seen else None
@@ -158,16 +169,12 @@ class TrabberWeb(RoutePage):
     scope = 'indicative_route_minimum'
 
     def extract(self, html, search):
-        for script in JSON_LD.findall(html):
-            try:
-                block = json.loads(script)
-            except ValueError:
+        for block in structured_nodes(html):
+            if not has_type(block, 'Product'):
                 continue
-            if not isinstance(block, dict) or block.get('@type') != 'Product':
+            if not route_name_matches(block.get('name'), CITIES[search.origin], CITIES[search.destination]):
                 continue
-            if f'{CITIES[search.origin]} - {CITIES[search.destination]}' not in block.get('name', ''):
-                continue
-            fare = block.get('offers', {})
+            fare = object_value(block.get('offers'))
             if fare.get('@type') == 'AggregateOffer' and fare.get('priceCurrency') == 'EUR':
                 return [(fare['lowPrice'], [], None)] if fare.get('lowPrice') is not None else []
         return None

@@ -6,6 +6,7 @@
 | viewer.py | Servidor local y rutas del visor |
 | core.py | Modelos, validación, clasificación e histórico SQLite |
 | airports.py | Aeropuertos y opciones de ruta |
+| connectors/web/html.py | Lectura HTML, JSON-LD, objetos incrustados e importes |
 | connectors/web | Lectores HTML y datos incrustados de las fuentes |
 | connectors/browser | Lectura con Chromium |
 | connectors/feeds | Importación de ofertas estructuradas |

@@ -1129,14 +1129,22 @@
       "web",
       "browser"
     ],
-    "status": "candidate",
-    "implemented_methods": [],
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
     "priority": 2,
-    "route_coverage": "unverified",
+    "route_coverage": "Spain-Monterrey public route references; not live availability",
     "reputation": "not_assessed",
-    "access_review": "pending",
-    "discovery_verified_at": null,
-    "notes": "Candidata para comparar itinerarios con conexión."
+    "access_review": "public_html",
+    "discovery_verified_at": "2026-11-21",
+    "notes": "HTML JSON-LD Product/Offer. Mínimo de ruta sin fechas, fuera del mínimo fechado y del total de compra. Puede compartir inventario con Lufthansa. EUR estricto; páginas en MXN se excluyen.",
+    "route_links": {
+      "BCN-MTY": "https://www.swiss.com/lhg/es/es/o-d/cy-cy/barcelona-monterrey",
+      "MAD-MTY": "https://www.swiss.com/lhg/es/es/o-d/cy-cy/madrid-monterrey",
+      "MTY-BCN": "https://www.swiss.com/lhg/es/es/o-d/cy-cy/monterrey-barcelona",
+      "MTY-MAD": "https://www.swiss.com/lhg/es/es/o-d/cy-cy/monterrey-madrid"
+    }
   },
   {
     "id": "despegar_mx",
@@ -1387,5 +1395,30 @@
     "access_review": "public_page_access_can_vary",
     "discovery_verified_at": "2026-11-19",
     "notes": "Precios por tramo en las fechas publicadas."
+  },
+  {
+    "id": "brussels",
+    "name": "Brussels Airlines",
+    "category": "airline",
+    "url": "https://www.brusselsairlines.com/lhg/es/es/",
+    "methods": [
+      "web"
+    ],
+    "priority": 2,
+    "reputation": "not_assessed",
+    "status": "implemented",
+    "implemented_methods": [
+      "web"
+    ],
+    "route_coverage": "Spain-Monterrey public route references; not live availability",
+    "access_review": "public_html",
+    "discovery_verified_at": "2026-11-21",
+    "notes": "HTML JSON-LD Product/Offer. Mínimo de ruta sin fechas, fuera del mínimo fechado y del total de compra. Puede compartir inventario con Lufthansa. EUR estricto; páginas en MXN se excluyen.",
+    "route_links": {
+      "BCN-MTY": "https://www.brusselsairlines.com/lhg/es/es/o-d/cy-cy/barcelona-monterrey",
+      "MAD-MTY": "https://www.brusselsairlines.com/lhg/es/es/o-d/cy-cy/madrid-monterrey",
+      "MTY-BCN": "https://www.brusselsairlines.com/lhg/es/es/o-d/cy-cy/monterrey-barcelona",
+      "MTY-MAD": "https://www.brusselsairlines.com/lhg/es/es/o-d/cy-cy/monterrey-madrid"
+    }
   }
 ]

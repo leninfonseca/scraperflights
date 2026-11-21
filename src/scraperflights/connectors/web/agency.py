@@ -1,45 +1,22 @@
 """Price observations from public agency and comparison landing pages."""
 from datetime import date, datetime, timezone
-from decimal import InvalidOperation
 import json
 import re
 from zoneinfo import ZoneInfo
 from ...airports import AIRPORTS
 from urllib.parse import parse_qs, urlsplit
 
-from ...core import money
-from .routes import CITIES, DECODER, JSON_LD, RoutePage
+from .routes import CITIES, DECODER, RoutePage
+from .html import structured_nodes, embedded_nodes, has_type, amount as euros, object_value, route_name_matches
 
-
-def structured_nodes(html):
-    def walk(value):
-        if isinstance(value, dict):
-            yield value
-            for child in value.values():
-                yield from walk(child)
-        elif isinstance(value, list):
-            for child in value:
-                yield from walk(child)
-
-    for script in JSON_LD.findall(html):
-        try:
-            value = json.loads(script)
-        except ValueError:
-            continue
-        yield from walk(value)
-
-
-def euros(value):
-    try:
-        return money(value)
-    except (InvalidOperation, ValueError):
-        return None
 
 
 def airport(value):
     if not isinstance(value, dict):
         return None
-    identifier = value.get('@id', '')
+    identifier = value.get('@id') or ''
+    if not isinstance(identifier, str):
+        identifier = ''
     return value.get('iataCode') or (identifier.rsplit('/', 1)[-1] if '/#airport/' in identifier else None)
 
 
@@ -51,12 +28,14 @@ class TripComWeb(RoutePage):
         groups = {}
         seen = False
         for flight in structured_nodes(html):
-            if flight.get('@type') != 'Flight':
+            if not has_type(flight, 'Flight'):
                 continue
             offer = flight.get('offers')
             if not isinstance(offer, dict) or offer.get('priceCurrency') != 'EUR':
                 continue
-            url = offer.get('url', '')
+            url = offer.get('url')
+            if not isinstance(url, str):
+                continue
             parsed = urlsplit(url)
             if parsed.scheme != 'https' or parsed.netloc != 'es.trip.com':
                 continue
@@ -72,7 +51,7 @@ class TripComWeb(RoutePage):
                 try:
                     if date.fromisoformat(valid_until) < datetime.now(timezone.utc).date():
                         continue
-                except ValueError:
+                except (ValueError, TypeError):
                     continue
             route = (airport(flight.get('departureAirport')), airport(flight.get('arrivalAirport')))
             if route == (search.origin, search.destination):
@@ -85,7 +64,10 @@ class TripComWeb(RoutePage):
                 continue
             if not flight.get('flightNumber') or not flight.get('departureTime'):
                 continue
-            departure = datetime.fromisoformat(flight['departureTime'].replace('Z', '+00:00'))
+            try:
+                departure = datetime.fromisoformat(flight['departureTime'].replace('Z', '+00:00'))
+            except (ValueError, TypeError, AttributeError):
+                continue
             if departure.tzinfo is not None:
                 departure = departure.astimezone(ZoneInfo(AIRPORTS[route[0]]['timezone']))
             expected_date = search.departure if leg == 0 else search.return_date
@@ -93,7 +75,7 @@ class TripComWeb(RoutePage):
                 continue
             segment = {'leg': leg, 'origin': route[0], 'destination': route[1],
                        'departure': departure.isoformat(), 'arrival': flight.get('arrivalTime'),
-                       'flight': flight['flightNumber'], 'operator': flight.get('provider', {}).get('name'),
+                       'flight': flight['flightNumber'], 'operator': object_value(flight.get('provider')).get('name'),
                        'nonstop': flight.get('isNonstop')}
             groups.setdefault(url, {})[leg] = (euros(offer.get('price')), segment)
         result = []
@@ -114,34 +96,31 @@ class RumboWeb(RoutePage):
     def extract(self, html, search):
         seen = False
         results = {}
-        for marker in re.finditer(r'\{\s*"airlineLogo"\s*:', html):
-            try:
-                row, _ = DECODER.raw_decode(html, marker.start())
-            except ValueError:
-                continue
+        for row in embedded_nodes(html):
             data = row.get('customData')
             if row.get('brand') != 'rumbo' or not isinstance(data, dict):
                 continue
             seen = True
-            if (row.get('departure', {}).get('airportCode'), row.get('arrival', {}).get('airportCode'),
+            if (object_value(row.get('departure')).get('airportCode'), object_value(row.get('arrival')).get('airportCode'),
                 data.get('departureDate'), row.get('withReturnFlight')) != (
                     search.origin, search.destination, search.departure, bool(search.return_date)):
                 continue
             if search.return_date and data.get('arrivalDate') != search.return_date:
                 continue
-            fare = data.get('price', {})
+            fare = object_value(data.get('price'))
             price = euros(fare.get('amount')) if fare.get('currency') == 'EUR' else None
             if price is None:
                 continue
-            schedule = [(search.origin, search.destination, search.departure, row.get('departureInfo', {}))]
+            schedule = [(search.origin, search.destination, search.departure, object_value(row.get('departureInfo')))]
             if search.return_date:
-                schedule.append((search.destination, search.origin, search.return_date, row.get('arrivalInfo', {})))
+                schedule.append((search.destination, search.origin, search.return_date, object_value(row.get('arrivalInfo'))))
             if search.direct and any(info.get('stops') != 0 for _, _, _, info in schedule):
                 continue
             legs = []
             for i, (origin, destination, day, info) in enumerate(schedule):
                 takeoff = info.get('takeoff')
-                airline = next(iter(info.get('airlinesInfo', [])), {})
+                airlines = info.get('airlinesInfo')
+                airline = object_value(airlines[0]) if isinstance(airlines, list) and airlines else {}
                 legs.append({'leg': i, 'origin': origin, 'destination': destination,
                              'departure': f'{day}T{takeoff}:00' if takeoff else day,
                              'operator': airline.get('name'), 'stops': info.get('stops')})
@@ -156,9 +135,9 @@ class RouteMinimumWeb(RoutePage):
     def extract(self, html, search):
         for node in structured_nodes(html):
             name = node.get('name', '')
-            if str(node.get('@type', '')).lower() != 'product' or not isinstance(name, str):
+            if not has_type(node, 'Product') or not isinstance(name, str):
                 continue
-            if not all(city.casefold() in name.casefold() for city in (CITIES[search.origin], CITIES[search.destination])):
+            if not route_name_matches(name, CITIES[search.origin], CITIES[search.destination]):
                 continue
             offer = node.get('offers')
             if not isinstance(offer, dict) or offer.get('@type') != 'AggregateOffer' or offer.get('priceCurrency') != 'EUR':

@@ -26,7 +26,7 @@ Las rutas con Monterrey admiten escalas por defecto. `--direct-only` limita a di
 
 ## Qué datos obtienes
 
-La búsqueda utiliza 13 conectores de vuelos y añade 4 terrestres para BCN↔MAD. El catálogo tiene 68 fuentes, con cobertura y estado de integración. Los resultados dependen de las páginas públicas y pueden tener mínimos orientativos, referencias fechadas, datos históricos o errores de acceso.
+La búsqueda utiliza 15 conectores HTML de vuelos y añade 4 terrestres para BCN↔MAD. El catálogo tiene 69 fuentes, con cobertura y estado de integración. Los resultados dependen de las páginas públicas y pueden tener mínimos orientativos, referencias fechadas, datos históricos o errores de acceso.
 
 El visor separa medios y tramos, muestra el estado de cada fuente y conserva los datos originales. `lowest_dated_reference` es la menor referencia publicada de vuelo para las fechas solicitadas. `winner` requiere disponibilidad y costes finales verificados. Los mínimos de ruta, históricos y mensuales quedan en sus categorías. Las conexiones de billetes separados requieren planificar traslado y margen de embarque.
 
