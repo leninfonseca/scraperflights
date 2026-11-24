@@ -306,11 +306,13 @@ function showReport(text, name) {
   if (name.toLowerCase().endsWith('.csv')) {
     const rows = parseCSV(text);
     hero(fragment, 'TABLA DE PRECIOS · CSV', name, 'Abre el JSON del mismo nombre para ver fechas, fuentes y parámetros.');
-    offers(fragment, rows, 'Precios del archivo', 'El CSV contiene los precios exportados y los motivos de exclusión.');
+    if (rows.some(row => Object.hasOwn(row, 'property'))) lodgingReport(fragment, {kind:'lodging', search:{},observations:rows,sources:[],external_links:[]}, name);
+    else offers(fragment, rows, 'Precios del archivo', 'El CSV contiene los precios exportados y los motivos de exclusión.');
   } else if (name.toLowerCase().endsWith('.json')) {
     const report = JSON.parse(text.replace(/^\uFEFF/, ''));
     if (!report || typeof report !== 'object') throw new Error('El JSON no es un informe.');
-    if (Array.isArray(report.pairs)) comparisonReport(fragment, report, name);
+    if (report.kind === 'lodging') lodgingReport(fragment, report, name);
+    else if (Array.isArray(report.pairs)) comparisonReport(fragment, report, name);
     else if (report.search && Array.isArray(report.sources)) searchReport(fragment, report, name);
     else throw new Error('El JSON no tiene el formato de un informe de scraperflights.');
   } else throw new Error('Selecciona un archivo JSON o CSV.');
@@ -345,7 +347,7 @@ async function refreshFiles(autoOpen = false) {
       button.dataset.name = report.name;
       button.setAttribute('aria-current', String(currentName === report.name));
       const type = report.name.toLowerCase().endsWith('.csv') ? 'CSV' :
-        report.name.startsWith('comparison-') ? 'COMPARACIÓN · JSON' : 'BÚSQUEDA · JSON';
+        report.name.startsWith('lodging-') ? 'ALOJAMIENTO · JSON' : report.name.startsWith('comparison-') ? 'COMPARACIÓN · JSON' : 'BÚSQUEDA · JSON';
       button.append(el('span', type + ' · ' + formatDate(report.modified * 1000)),
         document.createTextNode(report.name));
       button.addEventListener('click', () => openReport(report.name, async () => {
@@ -368,7 +370,7 @@ $('upload').addEventListener('change', event => {
     Promise.reject(new Error('El informe supera 32 MB.')) : file.text());
   event.target.value = '';
 });
-refreshFiles(true);
+document.addEventListener('DOMContentLoaded', () => refreshFiles(true));
 
 const searchForm = $('search-form');
 const departure = $('departure');

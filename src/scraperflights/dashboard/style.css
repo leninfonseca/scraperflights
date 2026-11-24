@@ -11,3 +11,5 @@
 
 .mode-picker{display:flex;flex-wrap:wrap;gap:10px;border:1px solid var(--line);border-radius:8px;padding:7px 10px}.mode-picker legend{font-size:.8rem;color:var(--muted)}.mode-picker label{display:flex;align-items:center;gap:4px}.mode-picker input{min-height:0}
 #analysis-section>summary{font-size:1.1rem;margin-bottom:10px}.mapping-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}.mapping-grid label{display:grid;gap:4px;color:var(--muted);font-size:.83rem;font-weight:650}.mapping-grid select,.mapping-grid input{max-width:100%;min-width:0;padding:7px;border:1px solid #b9c8d8;border-radius:8px;background:#fff}#analysis-results svg{width:100%;max-height:220px;background:#f6faf9;border:1px solid var(--line);border-radius:10px;margin:10px 0}#analysis-import button{margin-right:10px}#analysis-status{margin-bottom:12px}
+
+#lodging-section>summary{font-size:1.1rem;margin-bottom:10px}#lodging-status{margin-top:10px}#lodging-providers{width:100%}

@@ -9,6 +9,7 @@
 <script src="/app.js" defer></script>
 <script src="/analysis.js" defer></script>
 <script src="/devices.js" defer></script>
+<script src="/lodging.js" defer></script>
 </head>
 <body>
 <header class="top"><div class="wrap top-inner"><a class="brand" href="/"><span class="logo" aria-hidden="true">↗</span> scraperflights</a><span class="local"><i></i> Visor local</span></div></header>
@@ -33,6 +34,23 @@
 </form>
 <p id="search-status" class="subtle" role="status">Un adulto en turista, en euros. Las rutas con Monterrey admiten escalas por defecto.</p>
 </section>
+<details class="panel section" id="lodging-section">
+<summary>Alojamiento para las fechas de tus vuelos</summary>
+<p class="subtle">Toma el destino, la ida y el regreso de Nueva búsqueda. Revisa la llegada real: un vuelo nocturno puede llegar otro día. Los precios generales no equivalen al total de tu estancia.</p>
+<div class="toolbar"><button type="button" id="lodging-copy">Usar fechas de los vuelos</button><label><input type="checkbox" id="lodging-follow" checked> Sincronizar con los vuelos</label></div>
+<form id="lodging-form" class="search-form">
+<label>Ciudad de alojamiento<select id="lodging-destination"><option value="BCN">Barcelona</option><option value="MAD">Madrid</option><option value="MTY">Monterrey</option></select></label>
+<label>Entrada<input id="lodging-checkin" type="date" required></label>
+<label>Salida del alojamiento<input id="lodging-checkout" type="date" required></label>
+<label>Adultos<input id="lodging-adults" type="number" min="1" max="9" value="1" required></label>
+<label>Habitaciones<input id="lodging-rooms" type="number" min="1" max="9" value="1" required></label>
+<fieldset class="mode-picker" id="lodging-providers"><legend>Fuentes con lector HTML</legend></fieldset>
+<button type="submit" id="lodging-button" class="primary">Buscar alojamiento</button>
+</form>
+<p id="lodging-status" role="status" class="subtle">Si el vuelo es solo de ida, indica una salida del alojamiento. Cargando catálogo…</p>
+<div id="lodging-results"></div>
+<details><summary>Más webs y cadenas de alojamiento</summary><p class="subtle">Directorio adicional para ampliar la búsqueda. Los enlaces manuales no se consultan automáticamente ni tienen fechas preseleccionadas.</p><div id="lodging-catalog"></div></details>
+</details>
 <details class="panel section catalog">
 <summary>Catálogo de compañías y agencias</summary>
 <div id="catalog-results"></div>

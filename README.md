@@ -40,9 +40,18 @@ Los CSV nuevos incorporan ruta, fechas, viajeros, equipaje y tipo de referencia 
 
 Abre **Laboratorio de dispositivos y marcas** en el mismo visor. Elige ruta y fechas arriba, perfiles de Apple, Samsung, Xiaomi o Google, un control y fuentes web. Guarda rondas, diferencias porcentuales y una repetición del control para observar ruido temporal. Los JSON se incorporan al análisis histórico por perfil. Son señales sintéticas; no cambian IP ni demuestran un efecto causal de marca. [Metodología, estudio y uso](docs/devices.md).
 
+## Buscar alojamiento con las fechas de los vuelos
+
+En el mismo visor abre **Alojamiento para las fechas de tus vuelos**. Copia destino, ida y regreso; puedes corregir la entrada por la llegada real del vuelo. Para solo ida, completa una salida del alojamiento. Admite adultos, habitaciones, cinco lectores HTML y un directorio manual de otras 32 webs/cadenas. Guarda JSON y CSV sin mezclar los precios con los de vuelos. [Cobertura y límites](docs/lodging.md).
+
+```cmd
+py -m scraperflights.cli lodging --destination MTY --date 2027-01-15 --return-date 2027-01-20
+```
+
 ## Documentación
 
 - [Fuentes e integración](docs/sources.md)
+- [Alojamiento y fechas de los vuelos](docs/lodging.md)
 - [Arquitectura del proyecto](docs/architecture.md)
 - [Análisis e importaciones](docs/analysis.md)
 

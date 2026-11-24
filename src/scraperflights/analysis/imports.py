@@ -87,6 +87,8 @@ def xlsx_tables(data):
 
 
 def report_rows(report):
+    if isinstance(report, dict) and report.get('kind') == 'lodging':
+        return []  # Accommodation has its own price basis and occupancy, never flight series.
     if isinstance(report, list):
         return report
     if not isinstance(report, dict):

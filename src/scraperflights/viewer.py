@@ -18,13 +18,16 @@ from .cli import MODES, WEB_CONNECTORS, providers_for, export, run_search
 from .core import Search, Store
 from .profiles import DEVICES
 from .experiment import compare_devices
+from .lodging.catalog import catalog as lodging_catalog
+from .lodging.service import run_lodging, export_lodging, search_from_payload
 
 MAX_REPORT = 32 * 1024 * 1024
 REPORT_TYPES = {'.json': 'application/json', '.csv': 'text/csv'}
 ASSETS = {'/': ('index.html', 'text/html'), '/app.js': ('app.js', 'text/javascript'),
           '/style.css': ('style.css', 'text/css'),
           '/analysis.js': ('analysis.js', 'text/javascript'),
-          '/devices.js': ('devices.js', 'text/javascript')}
+          '/devices.js': ('devices.js', 'text/javascript'),
+          '/lodging.js': ('lodging.js', 'text/javascript')}
 
 
 class DashboardHandler(BaseHTTPRequestHandler):
@@ -61,6 +64,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
             name, content_type = ASSETS[url.path]
             asset = files('scraperflights').joinpath('dashboard', name)
             self.send_data(asset.read_bytes(), content_type)
+        elif url.path == '/lodging/catalog':
+            self.send_json(lodging_catalog())
         elif url.path == '/devices':
             self.send_json({'devices': DEVICES, 'providers': [c.name for c in WEB_CONNECTORS]})
         elif url.path == '/catalog':
@@ -102,6 +107,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.valid_host() or self.headers.get('Origin') != f"http://{self.headers.get('Host')}":
             self.send_json({'error': 'Abre el visor desde su dirección local.'}, 403)
+            return
+        if self.path == '/lodging/search':
+            self.lodging_request()
             return
         if self.path == '/compare-devices':
             self.compare_devices_request()
@@ -174,6 +182,28 @@ class DashboardHandler(BaseHTTPRequestHandler):
         finally:
             self.search_lock.release()
         self.send_json({'name': name})
+
+    def lodging_request(self):
+        try:
+            length=int(self.headers.get('Content-Length','0'))
+            if self.headers.get_content_type() != 'application/json' or not 0 < length <= 8192:
+                raise ValueError('Petición JSON inválida.')
+            search,providers=search_from_payload(json.loads(self.rfile.read(length)))
+        except (ValueError,TypeError,UnicodeError) as exc:
+            self.send_json({'error':str(exc)},400)
+            return
+        if self.search_lock is None or not self.search_lock.acquire(blocking=False):
+            self.send_json({'error':'Ya hay una búsqueda en curso.'},409)
+            return
+        try:
+            report=run_lodging(search,providers)
+            path=export_lodging(report,self.directory)
+        except OSError:
+            self.send_json({'error':'No se pudo guardar el informe de alojamiento.'},500)
+            return
+        finally:
+            self.search_lock.release()
+        self.send_json({'name':path.name,'report':report})
 
     def compare_devices_request(self):
         try:

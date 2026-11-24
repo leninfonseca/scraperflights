@@ -16,6 +16,8 @@
 | dashboard/app.js | Búsqueda y visualización de informes |
 | dashboard/analysis.js | Importación y análisis interactivo |
 | sources.json | Catálogo y cobertura |
+| lodging/ | Búsquedas de alojamiento, catálogo, extracción HTML y exportación separada |
+| dashboard/lodging.js | Formulario sincronizado y lectura de informes de alojamiento |
 | tests | Regresiones de cálculos, rutas y extracción |
 
 Los adaptadores API históricos y providers.py se conservan por compatibilidad con los consumidores y pruebas existentes. La búsqueda de consola y del visor usa las fuentes web. Se retiró el protocolo base sin uso y se sustituyó el README de diseño inicial por instrucciones de ejecución y enlaces a documentación.

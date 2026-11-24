@@ -12,6 +12,9 @@ from .connectors.web.ground import BlaBlaCarWeb, TrainlineWeb, OmioTrainWeb, Omi
 from .catalog import sources
 from .airports import AIRPORTS, destination_for, direct_for
 from .profiles import DEVICES
+from .lodging.models import LodgingSearch
+from .lodging.catalog import AUTOMATIC as LODGING_PROVIDERS
+from .lodging.service import run_lodging, export_lodging
 from .experiment import FACTORS, compare_profiles, compare_devices
 from .connectors.web.vueling import VuelingWeb
 from .connectors.browser.vueling import VuelingBrowser
@@ -153,6 +156,17 @@ def main(argv=None):
     compare.add_argument('--providers', nargs='+', choices=[c.name for c in WEB_CONNECTORS],
                          default=None)
     compare.add_argument('--output', type=Path, default=Path('output'))
+    lodging = sub.add_parser('lodging', help='Search accommodation using flight dates, without APIs')
+    lodging.add_argument('--destination', choices=list(AIRPORTS), required=True)
+    lodging.add_argument('--date', required=True, help='Flight departure / default check-in')
+    lodging.add_argument('--return-date', help='Flight return / default check-out')
+    lodging.add_argument('--checkin', help='Override actual local arrival date')
+    lodging.add_argument('--checkout', help='Required for one-way flights')
+    lodging.add_argument('--adults', type=int, default=1)
+    lodging.add_argument('--rooms', type=int, default=1)
+    lodging.add_argument('--providers', nargs='+', choices=list(LODGING_PROVIDERS))
+    lodging.add_argument('--budget', type=int, default=5)
+    lodging.add_argument('--output', type=Path, default=Path('output'))
     q = sub.add_parser('search')
     q.add_argument('--origin', choices=list(AIRPORTS), default='MAD')
     q.add_argument('--destination', choices=list(AIRPORTS))
@@ -181,6 +195,17 @@ def main(argv=None):
         print(json.dumps({c.name: 'configured' if c(Client()).ready() else 'credentials_missing'
                           for c in (Amadeus, Skyscanner)}, indent=2))
         return 0
+    if args.command == 'lodging':
+        try:
+            search = LodgingSearch(args.destination, args.checkin or args.date, args.checkout or args.return_date,
+                                   args.adults, args.rooms)
+            report = run_lodging(search, args.providers, args.budget)
+            path = export_lodging(report, args.output)
+        except (ValueError, TypeError) as exc:
+            p.error(str(exc))
+        print(json.dumps({'report':str(path),'properties':len(report['observations']),
+                          'sources':report['sources'],'lowest_comparable_reference':report['lowest_comparable_reference']},ensure_ascii=False))
+        return 0 if report['observations'] else 2
     if args.command == 'history':
         if not Path(args.db).exists():
             print('[]')
